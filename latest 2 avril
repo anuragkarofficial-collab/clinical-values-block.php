@@ -2,6 +2,7 @@
 $eyebrow = get_sub_field('eyebrow');
 $title = get_sub_field('title');
 $title_tag = get_sub_field('title_tag') ?: 'h2';
+$title_font = strtoupper((string) get_sub_field('title_font'));
 $product_badge = get_sub_field('product_badge');
 $description_line = get_sub_field('description_line');
 
@@ -18,6 +19,30 @@ $cta_url = get_sub_field('cta_url');
 $allowed_title_tags = array('h1', 'h2', 'h3');
 if (!in_array($title_tag, $allowed_title_tags, true)) {
   $title_tag = 'h2';
+}
+
+$allowed_title_fonts = array('H1', 'H2', 'H3');
+if (!in_array($title_font, $allowed_title_fonts, true)) {
+  $title_font = strtoupper($title_tag);
+}
+if (!in_array($title_font, $allowed_title_fonts, true)) {
+  $title_font = 'H2';
+}
+
+switch ($title_font) {
+  case 'H1':
+    $title_font_size = 'clamp(46px, 4.8vw, 72px)';
+    $title_font_size_mobile = '46px';
+    break;
+  case 'H3':
+    $title_font_size = 'clamp(32px, 3.3vw, 50px)';
+    $title_font_size_mobile = '36px';
+    break;
+  case 'H2':
+  default:
+    $title_font_size = 'clamp(38px, 4vw, 62px)';
+    $title_font_size_mobile = '42px';
+    break;
 }
 
 $valid_images = array();
@@ -90,7 +115,7 @@ $text_font = "'Rubik', sans-serif";
   .hc-clinical-values .hc-title {
     font-family: <?php echo $heading_font; ?>;
     margin: 0;
-    font-size: clamp(38px, 4vw, 62px);
+    font-size: <?php echo $title_font_size; ?>;
     line-height: 0.98;
     letter-spacing: -0.04em;
     font-weight: 600;
@@ -144,6 +169,7 @@ $text_font = "'Rubik', sans-serif";
     grid-area: cta;
     align-self: end;
     padding-top: 8px;
+    margin-top: 52px;
   }
 
   .hc-clinical-values.hc-has-three-images .hc-cta-wrap {
@@ -151,6 +177,7 @@ $text_font = "'Rubik', sans-serif";
     max-width: 960px;
     justify-self: center;
     padding-top: 4px;
+    margin-top: 48px;
   }
 
   .hc-clinical-values .hc-center {
@@ -293,7 +320,7 @@ $text_font = "'Rubik', sans-serif";
     max-width: 220px;
     padding: 22px 18px 18px;
     text-align: left;
-	flex: 0 0 220px;
+    flex: 0 0 220px;
   }
 
   .hc-clinical-values .hc-stat-value {
@@ -442,13 +469,14 @@ $text_font = "'Rubik', sans-serif";
 
     .hc-clinical-values .hc-cta-wrap {
       padding-top: 0;
+      margin-top: 0;
     }
 
     .hc-clinical-values .hc-stat {
-	  width: 220px;
+      width: 220px;
       max-width: 220px;
       padding: 22px 18px 18px;
-	  flex: 0 0 220px;
+      flex: 0 0 220px;
     }
   }
 
@@ -462,7 +490,7 @@ $text_font = "'Rubik', sans-serif";
     }
 
     .hc-clinical-values .hc-title {
-      font-size: 42px;
+      font-size: <?php echo $title_font_size_mobile; ?>;
       line-height: 0.98;
     }
 
@@ -486,10 +514,10 @@ $text_font = "'Rubik', sans-serif";
     }
 
     .hc-clinical-values .hc-stat {
-	  width: 190px
+      width: 190px;
       max-width: 190px;
       padding: 20px 16px 16px;
-	  flex: 0 0 190px;
+      flex: 0 0 190px;
     }
 
     .hc-clinical-values .hc-stat-value {
