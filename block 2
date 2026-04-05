@@ -126,12 +126,7 @@ foreach ($images_rows as $row) {
 	);
 }
 
-$stat = array(
-	'value'        => '',
-	'label'        => '',
-	'border_color' => '#ef4b73',
-);
-
+$stats = array();
 $stat_rows = $get_rows('stat');
 foreach ($stat_rows as $row) {
 	if (!is_array($row)) {
@@ -142,11 +137,31 @@ foreach ($stat_rows as $row) {
 		continue;
 	}
 
-	$stat['value']        = $row['stat_value'] ?? '';
-	$stat['label']        = $row['stat_label'] ?? '';
-	$stat['border_color'] = $sanitize_color($row['stat_border_color'] ?? '', '#ef4b73');
-	break;
+	$stat_value = $row['stat_value'] ?? '';
+	$stat_label = $row['stat_label'] ?? '';
+
+	if ($stat_value === '' && $stat_label === '') {
+		continue;
+	}
+
+	$stats[] = array(
+		'value'        => $stat_value,
+		'label'        => $stat_label,
+		'border_color' => $sanitize_color($row['stat_border_color'] ?? '', '#ef4b73'),
+	);
 }
+
+$stat = array(
+	'value'        => '',
+	'label'        => '',
+	'border_color' => '#ef4b73',
+);
+
+if (!empty($stats)) {
+	$stat = $stats[0];
+}
+
+$has_multiple_stats = count($stats) > 1;
 
 $show_stat_decoration = (bool) get_sub_field('show_stat_decoration');
 
@@ -185,10 +200,21 @@ foreach ($cta_rows as $row) {
 	break;
 }
 
-/* CTA border always follows the stat border color */
+/* CTA border always follows the first stat border color */
 if (!empty($stat['border_color'])) {
 	$cta['border_color'] = $stat['border_color'];
 }
+
+$is_cbct_block = (stripos((string) $product_badge['text'], 'cbct') !== false);
+
+/* Animate the original CBCT single stat, or any block that has multiple stat rows */
+$enable_stat_animation = (
+	!empty($stats) &&
+	(
+		$is_cbct_block ||
+		$has_multiple_stats
+	)
+);
 
 $images_count = count($images_items);
 
@@ -199,8 +225,7 @@ $has_content = (
 	!empty($description_line) ||
 	!empty($tags) ||
 	!empty($images_items) ||
-	!empty($stat['value']) ||
-	!empty($stat['label']) ||
+	!empty($stats) ||
 	!empty($cta['text'])
 );
 
@@ -253,12 +278,20 @@ if (!$has_content) {
 			letter-spacing: -0.03em;
 		}
 
+		.clinical-values-block-2__title--cbct {
+			font-family: 'Mont', sans-serif;
+		}
+
 		.clinical-values-block-2__layout {
 			display: grid;
 			grid-template-columns: minmax(260px, 0.9fr) minmax(0, 2fr) minmax(220px, 0.7fr);
 			align-items: stretch;
 			column-gap: 34px;
 			row-gap: 24px;
+		}
+
+		.clinical-values-block-2__layout--multi-stat {
+			grid-template-columns: minmax(260px, 0.9fr) minmax(0, 2fr) minmax(440px, 1.2fr);
 		}
 
 		.clinical-values-block-2__left {
@@ -351,6 +384,10 @@ if (!$has_content) {
 			min-width: 0;
 		}
 
+		.clinical-values-block-2__layout--multi-stat .clinical-values-block-2__center {
+			transform: translateX(90px);
+		}
+
 		.clinical-values-block-2__images {
 			display: grid;
 			grid-template-columns: repeat(var(--images-count, 3), minmax(0, 1fr));
@@ -415,13 +452,45 @@ if (!$has_content) {
 			align-self: flex-start;
 		}
 
+		.clinical-values-block-2__stat--multi {
+			max-width: 440px;
+			flex: 0 0 440px;
+		}
+
+		.clinical-values-block-2__stat-group {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 22px;
+		}
+
+		.clinical-values-block-2__stat-item {
+			width: 100%;
+			min-width: 0;
+		}
+
+		.clinical-values-block-2__stat-item--offset-first {
+			margin-left: 130px;
+		}
+
+		.clinical-values-block-2__stat-item--offset-right {
+			width: auto;
+			align-self: flex-end;
+		}
+
+		.clinical-values-block-2__stat-separator {
+			display: none;
+		}
+
 		.clinical-values-block-2__stat-value {
 			margin: 0 0 10px;
 			color: #ffffff;
-			font-size: clamp(56px, 4.8vw, 78px);
+			font-size: clamp(50px, 4.2vw, 70px);
 			font-weight: 700;
+			font-family: 'Mont', sans-serif;
 			line-height: 0.95;
 			letter-spacing: -0.05em;
+			white-space: nowrap;
 		}
 
 		.clinical-values-block-2__stat-label {
@@ -449,6 +518,10 @@ if (!$has_content) {
 			border-left: 3px solid var(--stat-accent, #ef4b73);
 		}
 
+		.clinical-values-block-2__stat--multi.clinical-values-block-2__stat-decoration::before {
+			left: 130px;
+		}
+
 		.clinical-values-block-2__stat-decoration::after {
 			right: 0;
 			bottom: 0;
@@ -462,8 +535,17 @@ if (!$has_content) {
 				column-gap: 24px;
 			}
 
+			.clinical-values-block-2__layout--multi-stat {
+				grid-template-columns: minmax(220px, 0.85fr) minmax(0, 1.8fr) minmax(380px, 1fr);
+			}
+
 			.clinical-values-block-2__images {
 				gap: 22px;
+			}
+
+			.clinical-values-block-2__stat--multi {
+				max-width: 380px;
+				flex: 0 0 380px;
 			}
 
 			.clinical-values-block-2__stat-label {
@@ -476,7 +558,8 @@ if (!$has_content) {
 				padding: 34px 22px 42px;
 			}
 
-			.clinical-values-block-2__layout {
+			.clinical-values-block-2__layout,
+			.clinical-values-block-2__layout--multi-stat {
 				grid-template-columns: 1fr;
 			}
 
@@ -489,6 +572,10 @@ if (!$has_content) {
 				justify-content: flex-start;
 			}
 
+			.clinical-values-block-2__layout--multi-stat .clinical-values-block-2__center {
+				transform: none;
+			}
+
 			.clinical-values-block-2__stat {
 				width: 220px;
 				max-width: 220px;
@@ -496,8 +583,14 @@ if (!$has_content) {
 				flex: 0 0 220px;
 			}
 
+			.clinical-values-block-2__stat--multi {
+				width: auto;
+				max-width: 420px;
+				flex: 0 0 auto;
+			}
+
 			.clinical-values-block-2__stat-value {
-				font-size: clamp(52px, 5vw, 72px);
+				font-size: clamp(46px, 4.6vw, 64px);
 			}
 
 			.clinical-values-block-2__stat-label {
@@ -559,13 +652,41 @@ if (!$has_content) {
 				flex: 0 0 190px;
 			}
 
+			.clinical-values-block-2__stat--multi {
+				width: 100%;
+				max-width: 100%;
+				flex: 0 0 auto;
+			}
+
+			.clinical-values-block-2__stat-group {
+				flex-wrap: wrap;
+				gap: 18px;
+			}
+
+			.clinical-values-block-2__stat-item {
+				width: 100%;
+			}
+
+			.clinical-values-block-2__stat-item--offset-first {
+				margin-left: 0;
+			}
+
+			.clinical-values-block-2__stat-item--offset-right {
+				width: 100%;
+				align-self: auto;
+			}
+
 			.clinical-values-block-2__stat-value {
-				font-size: clamp(48px, 14vw, 66px);
+				font-size: clamp(42px, 12vw, 58px);
 			}
 
 			.clinical-values-block-2__stat-label {
 				font-size: 18px;
 				white-space: normal;
+			}
+
+			.clinical-values-block-2__stat--multi.clinical-values-block-2__stat-decoration::before {
+				left: 0;
 			}
 		}
 	</style>
@@ -578,12 +699,12 @@ if (!$has_content) {
 				<?php endif; ?>
 
 				<?php if (!empty($title)) : ?>
-					<<?php echo esc_attr($title_tag); ?> class="clinical-values-block-2__title"><?php echo esc_html($title); ?></<?php echo esc_attr($title_tag); ?>>
+					<<?php echo esc_attr($title_tag); ?> class="clinical-values-block-2__title<?php echo $is_cbct_block ? ' clinical-values-block-2__title--cbct' : ''; ?>"><?php echo esc_html($title); ?></<?php echo esc_attr($title_tag); ?>>
 				<?php endif; ?>
 			</div>
 		<?php endif; ?>
 
-		<div class="clinical-values-block-2__layout">
+		<div class="clinical-values-block-2__layout<?php echo $has_multiple_stats ? ' clinical-values-block-2__layout--multi-stat' : ''; ?>">
 			<div class="clinical-values-block-2__left">
 				<?php if (!empty($product_badge['text'])) : ?>
 					<div
@@ -665,17 +786,55 @@ if (!$has_content) {
 			</div>
 
 			<div class="clinical-values-block-2__right">
-				<?php if (!empty($stat['value']) || !empty($stat['label'])) : ?>
+				<?php if (!empty($stats)) : ?>
 					<div
-						class="clinical-values-block-2__stat <?php echo $show_stat_decoration ? 'clinical-values-block-2__stat-decoration' : ''; ?>"
+						class="clinical-values-block-2__stat <?php echo $show_stat_decoration ? 'clinical-values-block-2__stat-decoration' : ''; ?><?php echo $has_multiple_stats ? ' clinical-values-block-2__stat--multi' : ''; ?>"
 						style="--stat-accent: <?php echo esc_attr($stat['border_color']); ?>;"
 					>
-						<?php if (!empty($stat['value'])) : ?>
-							<p class="clinical-values-block-2__stat-value"><?php echo esc_html($stat['value']); ?></p>
-						<?php endif; ?>
+						<?php if ($has_multiple_stats) : ?>
+							<div class="clinical-values-block-2__stat-group">
+								<?php foreach ($stats as $index => $stat_item) : ?>
+									<div class="clinical-values-block-2__stat-item<?php echo ($index === 0) ? ' clinical-values-block-2__stat-item--offset-first' : ''; ?><?php echo ($index === 1) ? ' clinical-values-block-2__stat-item--offset-right' : ''; ?>">
+										<?php if (!empty($stat_item['value'])) : ?>
+											<div
+												class="clinical-values-block-2__stat-value"
+												<?php if ($enable_stat_animation) : ?>
+													data-stat-target="<?php echo esc_attr($stat_item['value']); ?>"
+													data-stat-start="<?php echo esc_attr(strpos((string) $stat_item['value'], '%') !== false ? '30' : '0'); ?>"
+													data-stat-duration="3200"
+												<?php endif; ?>
+											>
+												<?php echo esc_html($stat_item['value']); ?>
+											</div>
+										<?php endif; ?>
 
-						<?php if (!empty($stat['label'])) : ?>
-							<p class="clinical-values-block-2__stat-label"><?php echo nl2br(esc_html($stat['label'])); ?></p>
+										<?php if (!empty($stat_item['label'])) : ?>
+											<div class="clinical-values-block-2__stat-label"><?php echo nl2br(esc_html($stat_item['label'])); ?></div>
+										<?php endif; ?>
+									</div>
+
+									<?php if ($index === 0 && count($stats) === 2) : ?>
+										<div class="clinical-values-block-2__stat-separator">&amp;</div>
+									<?php endif; ?>
+								<?php endforeach; ?>
+							</div>
+						<?php else : ?>
+							<?php if (!empty($stat['value'])) : ?>
+								<div
+									class="clinical-values-block-2__stat-value"
+									<?php if ($enable_stat_animation) : ?>
+										data-stat-target="<?php echo esc_attr($stat['value']); ?>"
+										data-stat-start="<?php echo esc_attr(strpos((string) $stat['value'], '%') !== false ? '30' : '0'); ?>"
+										data-stat-duration="3200"
+									<?php endif; ?>
+								>
+									<?php echo esc_html($stat['value']); ?>
+								</div>
+							<?php endif; ?>
+
+							<?php if (!empty($stat['label'])) : ?>
+								<div class="clinical-values-block-2__stat-label"><?php echo nl2br(esc_html($stat['label'])); ?></div>
+							<?php endif; ?>
 						<?php endif; ?>
 					</div>
 				<?php endif; ?>
@@ -683,3 +842,103 @@ if (!$has_content) {
 		</div>
 	</div>
 </section>
+
+<script>
+(function () {
+	if (window.__clinicalValuesBlock2StatInit) {
+		return;
+	}
+	window.__clinicalValuesBlock2StatInit = true;
+
+	function initClinicalValuesBlock2StatAnimation() {
+		var statValues = document.querySelectorAll('.clinical-values-block-2 .clinical-values-block-2__stat-value[data-stat-target]');
+		if (!statValues.length) return;
+
+		function animateClinicalStatValue(element) {
+			var targetText = element.getAttribute('data-stat-target') || element.textContent.trim();
+			var duration = parseInt(element.getAttribute('data-stat-duration'), 10) || 1800;
+			var explicitStart = parseFloat(element.getAttribute('data-stat-start'));
+			var match = targetText.match(/^\s*([^0-9+\-]*)([+\-]?\d+(?:[.,]\d+)?)(.*)\s*$/);
+
+			if (!match) return;
+
+			var prefix = match[1] || '';
+			var numericText = match[2] || '';
+			var suffix = match[3] || '';
+			var decimals = (numericText.split(/[.,]/)[1] || '').length;
+			var targetValue = parseFloat(numericText.replace(',', '.'));
+
+			if (isNaN(targetValue)) return;
+
+			var startValue = !isNaN(explicitStart) ? explicitStart : 0;
+			if (targetValue < startValue) {
+				startValue = 0;
+			}
+
+			if (element._clinicalStatFrame) {
+				cancelAnimationFrame(element._clinicalStatFrame);
+			}
+
+			var startTime = null;
+
+			function formatValue(value) {
+				var formattedNumber = decimals > 0 ? value.toFixed(decimals) : String(Math.round(value));
+				return prefix + formattedNumber + suffix;
+			}
+
+			function step(timestamp) {
+				if (!startTime) startTime = timestamp;
+
+				var progress = Math.min((timestamp - startTime) / duration, 1);
+				var easedProgress = 1 - Math.pow(1 - progress, 3);
+				var currentValue = startValue + (targetValue - startValue) * easedProgress;
+
+				element.textContent = formatValue(currentValue);
+
+				if (progress < 1) {
+					element._clinicalStatFrame = requestAnimationFrame(step);
+				} else {
+					element.textContent = prefix + (decimals > 0 ? targetValue.toFixed(decimals) : String(Math.round(targetValue))) + suffix;
+					element._clinicalStatFrame = null;
+				}
+			}
+
+			element.textContent = formatValue(startValue);
+			element._clinicalStatFrame = requestAnimationFrame(step);
+		}
+
+		if ('IntersectionObserver' in window) {
+			var observer = new IntersectionObserver(function (entries) {
+				entries.forEach(function (entry) {
+					var element = entry.target;
+
+					if (entry.isIntersecting && entry.intersectionRatio >= 0.45) {
+						if (!element._clinicalStatVisible) {
+							element._clinicalStatVisible = true;
+							animateClinicalStatValue(element);
+						}
+					} else {
+						element._clinicalStatVisible = false;
+					}
+				});
+			}, {
+				threshold: [0, 0.45, 0.7]
+			});
+
+			statValues.forEach(function (element) {
+				observer.observe(element);
+			});
+		} else {
+			statValues.forEach(function (element) {
+				animateClinicalStatValue(element);
+			});
+		}
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initClinicalValuesBlock2StatAnimation);
+	} else {
+		initClinicalValuesBlock2StatAnimation();
+	}
+})();
+</script>
