@@ -54,7 +54,7 @@ $get_rows = static function ($field_name) {
 	return $is_sequential ? $value : array($value);
 };
 
-$eyebrow   = get_sub_field('eyebrow');
+$eyebrow   = get_sub_field('eyebrow_title') ?: get_sub_field('eyebrow');
 $title     = get_sub_field('title');
 $title_tag = get_sub_field('title_tag') ?: 'h2';
 
@@ -205,7 +205,13 @@ if (!empty($stat['border_color'])) {
 	$cta['border_color'] = $stat['border_color'];
 }
 
-$is_cbct_block = (stripos((string) $product_badge['text'], 'cbct') !== false);
+$is_cbct_block   = (stripos((string) $product_badge['text'], 'hawkcbct') !== false || stripos((string) $product_badge['text'], 'cbct') !== false);
+$is_hawkct_block = (stripos((string) $product_badge['text'], 'hawkct') !== false);
+$is_hawkai_block = (stripos((string) $product_badge['text'], 'hawkai') !== false);
+$is_single_line_cta_block = ($is_cbct_block || $is_hawkai_block);
+
+$enable_featured_mobile_layout = ($is_cbct_block || $is_hawkct_block || $is_hawkai_block);
+$has_mobile_meta = ($enable_featured_mobile_layout && (!empty($tags) || !empty($description_line)));
 
 /* Animate the original CBCT single stat, or any block that has multiple stat rows */
 $enable_stat_animation = (
@@ -234,7 +240,7 @@ if (!$has_content) {
 }
 ?>
 
-<section class="clinical-values-block-2">
+<section class="clinical-values-block-2<?php echo $is_cbct_block ? ' clinical-values-block-2--cbct' : ''; ?><?php echo $is_hawkct_block ? ' clinical-values-block-2--hawkct' : ''; ?><?php echo $enable_featured_mobile_layout ? ' clinical-values-block-2--featured-mobile-layout' : ''; ?><?php echo $has_mobile_meta ? ' clinical-values-block-2--featured-mobile-layout-has-meta' : ''; ?><?php echo $is_single_line_cta_block ? ' clinical-values-block-2--single-line-cta' : ''; ?>">
 	<style>
 		.clinical-values-block-2,
 		.clinical-values-block-2 * {
@@ -246,24 +252,24 @@ if (!$has_content) {
 			width: 100%;
 			background: #000;
 			overflow: hidden;
-			padding: 44px 34px 54px;
+			padding: 30px 24px 36px;
 		}
 
 		.clinical-values-block-2__inner {
 			width: 100%;
-			max-width: 1680px;
+			max-width: 1120px;
 			margin: 0 auto;
 		}
 
 		.clinical-values-block-2__header {
-			margin-bottom: 30px;
+			margin-bottom: 20px;
 		}
 
 		.clinical-values-block-2__eyebrow {
-			margin: 0 0 10px;
+			margin: 0 0 4px;
 			color: #ffffff;
-			font-size: 18px;
-			font-weight: 400;
+			font-size: 14px;
+			font-weight: 400 !important;
 			letter-spacing: 0.16em;
 			text-transform: uppercase;
 			line-height: 1;
@@ -272,7 +278,7 @@ if (!$has_content) {
 		.clinical-values-block-2__title {
 			margin: 0;
 			color: #ffffff;
-			font-size: clamp(40px, 4vw, 78px);
+			font-size: clamp(30px, 3.2vw, 50px);
 			font-weight: 700;
 			line-height: 0.98;
 			letter-spacing: -0.03em;
@@ -280,18 +286,21 @@ if (!$has_content) {
 
 		.clinical-values-block-2__title--cbct {
 			font-family: 'Mont', sans-serif;
+			font-weight: 400;
+			letter-spacing: -0.035em;
+			line-height: 0.98;
 		}
 
 		.clinical-values-block-2__layout {
 			display: grid;
-			grid-template-columns: minmax(260px, 0.9fr) minmax(0, 2fr) minmax(220px, 0.7fr);
+			grid-template-columns: minmax(180px, 0.85fr) minmax(0, 1.7fr) minmax(160px, 0.55fr);
 			align-items: stretch;
-			column-gap: 34px;
-			row-gap: 24px;
+			column-gap: 22px;
+			row-gap: 18px;
 		}
 
 		.clinical-values-block-2__layout--multi-stat {
-			grid-template-columns: minmax(260px, 0.9fr) minmax(0, 2fr) minmax(440px, 1.2fr);
+			grid-template-columns: minmax(180px, 0.85fr) minmax(0, 1.7fr) minmax(300px, 0.9fr);
 		}
 
 		.clinical-values-block-2__left {
@@ -299,17 +308,17 @@ if (!$has_content) {
 			flex-direction: column;
 			align-items: flex-start;
 			min-width: 0;
-			padding-top: 6px;
+			padding-top: 4px;
 		}
 
 		.clinical-values-block-2__badge {
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
-			min-height: 46px;
-			padding: 11px 26px;
-			border-radius: 14px;
-			font-size: clamp(18px, 1.4vw, 24px);
+			min-height: 36px;
+			padding: 8px 18px;
+			border-radius: 12px;
+			font-size: clamp(15px, 1.1vw, 18px);
 			font-weight: 700;
 			line-height: 1;
 			text-align: center;
@@ -318,18 +327,22 @@ if (!$has_content) {
 		.clinical-values-block-2__tags {
 			display: flex;
 			flex-wrap: wrap;
-			gap: 10px;
-			margin-top: 22px;
+			gap: 8px;
+			margin-top: 16px;
+		}
+
+		.clinical-values-block-2__tags--mobile {
+			display: none;
 		}
 
 		.clinical-values-block-2__tag {
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
-			min-height: 28px;
-			padding: 7px 14px;
-			border-radius: 8px;
-			font-size: 13px;
+			min-height: 24px;
+			padding: 5px 10px;
+			border-radius: 7px;
+			font-size: 12px;
 			font-weight: 600;
 			line-height: 1.1;
 			text-align: center;
@@ -337,33 +350,46 @@ if (!$has_content) {
 		}
 
 		.clinical-values-block-2__description {
-			margin: 12px 0 0;
+			margin: 10px 0 0;
 			color: rgba(255, 255, 255, 0.9);
-			font-size: 16px;
+			font-size: 13px;
 			line-height: 1.35;
+		}
+
+		.clinical-values-block-2__mobile-meta {
+			display: none;
 		}
 
 		.clinical-values-block-2__cta-wrap {
 			margin-top: auto;
-			padding-top: 56px;
+			padding-top: 38px;
+		}
+
+		.clinical-values-block-2__cta-wrap--mobile {
+			display: none;
 		}
 
 		.clinical-values-block-2__cta {
 			display: inline-flex;
 			align-items: center;
-			gap: 14px;
-			padding: 16px 22px;
-			border: 3px solid;
-			border-radius: 12px;
-			font-size: clamp(18px, 1.2vw, 22px);
+			gap: 10px;
+			padding: 12px 18px;
+			border: 2px solid;
+			border-radius: 10px;
+			font-size: clamp(15px, 1vw, 18px);
 			font-weight: 700;
 			line-height: 1.1;
 			text-decoration: none;
-			transition: opacity 0.2s ease;
+			background-color: var(--cta-bg-color, transparent);
+			color: var(--cta-text-color, #ffffff);
+			transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 		}
 
-		.clinical-values-block-2__cta:hover {
-			opacity: 0.9;
+		.clinical-values-block-2__cta:hover,
+		.clinical-values-block-2__cta:focus-visible,
+		.clinical-values-block-2__cta:active {
+			background-color: var(--cta-border-color, #ef4b73) !important;
+			color: var(--cta-text-color, #ffffff) !important;
 		}
 
 		.clinical-values-block-2__cta-icon {
@@ -375,8 +401,8 @@ if (!$has_content) {
 
 		.clinical-values-block-2__cta-icon svg {
 			display: block;
-			width: 14px;
-			height: 22px;
+			width: 12px;
+			height: 18px;
 		}
 
 		.clinical-values-block-2__center {
@@ -385,13 +411,13 @@ if (!$has_content) {
 		}
 
 		.clinical-values-block-2__layout--multi-stat .clinical-values-block-2__center {
-			transform: translateX(90px);
+			transform: translateX(60px);
 		}
 
 		.clinical-values-block-2__images {
 			display: grid;
 			grid-template-columns: repeat(var(--images-count, 3), minmax(0, 1fr));
-			gap: 30px;
+			gap: 20px;
 			align-items: start;
 			justify-items: center;
 			width: 100%;
@@ -401,7 +427,7 @@ if (!$has_content) {
 
 		.clinical-values-block-2__image-card {
 			width: 100%;
-			max-width: 440px;
+			max-width: 300px;
 			margin: 0;
 			text-align: center;
 		}
@@ -419,20 +445,38 @@ if (!$has_content) {
 		}
 
 		.clinical-values-block-2__caption {
-			margin-top: 18px;
+			margin-top: 12px;
 			color: #ffffff;
-			font-size: clamp(16px, 1.2vw, 22px);
-			font-weight: 400;
+			font-size: clamp(13px, 1vw, 16px);
+			font-weight: 400 !important;
 			line-height: 1.25;
+			text-align: center;
 		}
 
-		.clinical-values-block-2__caption p {
+		.clinical-values-block-2__caption *,
+		.clinical-values-block-2__caption p,
+		.clinical-values-block-2__caption div,
+		.clinical-values-block-2__caption span,
+		.clinical-values-block-2__caption a,
+		.clinical-values-block-2__caption small {
 			margin: 0;
+			text-align: inherit;
+			font-weight: 400 !important;
+			font-family: inherit;
+		}
+
+		.clinical-values-block-2__caption strong,
+		.clinical-values-block-2__caption b {
+			font-weight: 700 !important;
+		}
+
+		.clinical-values-block-2__caption em,
+		.clinical-values-block-2__caption i {
+			font-style: italic;
 		}
 
 		.clinical-values-block-2__caption--accent {
 			color: var(--accent-color, #ef4b73);
-			font-weight: 700;
 		}
 
 		.clinical-values-block-2__right {
@@ -445,23 +489,23 @@ if (!$has_content) {
 		.clinical-values-block-2__stat {
 			position: relative;
 			width: 100%;
-			max-width: 220px;
-			padding: 22px 18px 18px;
+			max-width: 160px;
+			padding: 16px 12px 12px;
 			text-align: left;
-			flex: 0 0 220px;
+			flex: 0 0 160px;
 			align-self: flex-start;
 		}
 
 		.clinical-values-block-2__stat--multi {
-			max-width: 440px;
-			flex: 0 0 440px;
+			max-width: 300px;
+			flex: 0 0 300px;
 		}
 
 		.clinical-values-block-2__stat-group {
 			display: flex;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 22px;
+			gap: 16px;
 		}
 
 		.clinical-values-block-2__stat-item {
@@ -470,7 +514,7 @@ if (!$has_content) {
 		}
 
 		.clinical-values-block-2__stat-item--offset-first {
-			margin-left: 130px;
+			margin-left: 88px;
 		}
 
 		.clinical-values-block-2__stat-item--offset-right {
@@ -483,9 +527,9 @@ if (!$has_content) {
 		}
 
 		.clinical-values-block-2__stat-value {
-			margin: 0 0 10px;
+			margin: 0 0 8px;
 			color: #ffffff;
-			font-size: clamp(50px, 4.2vw, 70px);
+			font-size: clamp(36px, 3vw, 48px);
 			font-weight: 700;
 			font-family: 'Mont', sans-serif;
 			line-height: 0.95;
@@ -496,7 +540,7 @@ if (!$has_content) {
 		.clinical-values-block-2__stat-label {
 			margin: 0;
 			color: rgba(255, 255, 255, 0.88);
-			font-size: 22px;
+			font-size: 15px;
 			font-weight: 400;
 			line-height: 1.1;
 			white-space: nowrap;
@@ -506,56 +550,73 @@ if (!$has_content) {
 		.clinical-values-block-2__stat-decoration::after {
 			content: "";
 			position: absolute;
-			width: 34px;
-			height: 34px;
+			width: 24px;
+			height: 24px;
 			pointer-events: none;
 		}
 
 		.clinical-values-block-2__stat-decoration::before {
 			top: 0;
 			left: 0;
-			border-top: 3px solid var(--stat-accent, #ef4b73);
-			border-left: 3px solid var(--stat-accent, #ef4b73);
+			border-top: 2px solid var(--stat-accent, #ef4b73);
+			border-left: 2px solid var(--stat-accent, #ef4b73);
 		}
 
 		.clinical-values-block-2__stat--multi.clinical-values-block-2__stat-decoration::before {
-			left: 130px;
+			left: 88px;
 		}
 
 		.clinical-values-block-2__stat-decoration::after {
 			right: 0;
 			bottom: 0;
-			border-right: 3px solid var(--stat-accent, #ef4b73);
-			border-bottom: 3px solid var(--stat-accent, #ef4b73);
+			border-right: 2px solid var(--stat-accent, #ef4b73);
+			border-bottom: 2px solid var(--stat-accent, #ef4b73);
+		}
+
+		@media (min-width: 768px) {
+			.clinical-values-block-2--single-line-cta .clinical-values-block-2__cta {
+				white-space: nowrap;
+			}
+
+			.clinical-values-block-2--single-line-cta .clinical-values-block-2__cta span:first-child {
+				white-space: nowrap;
+			}
+
+			.clinical-values-block-2--hawkct .clinical-values-block-2__image-card:first-child .clinical-values-block-2__caption,
+			.clinical-values-block-2--hawkct .clinical-values-block-2__image-card:first-child .clinical-values-block-2__caption p,
+			.clinical-values-block-2--hawkct .clinical-values-block-2__image-card:first-child .clinical-values-block-2__caption div,
+			.clinical-values-block-2--hawkct .clinical-values-block-2__image-card:first-child .clinical-values-block-2__caption span {
+				text-align: center !important;
+			}
 		}
 
 		@media (max-width: 1399px) {
 			.clinical-values-block-2__layout {
-				grid-template-columns: minmax(220px, 0.85fr) minmax(0, 1.8fr) minmax(200px, 0.65fr);
-				column-gap: 24px;
+				grid-template-columns: minmax(170px, 0.8fr) minmax(0, 1.6fr) minmax(150px, 0.5fr);
+				column-gap: 18px;
 			}
 
 			.clinical-values-block-2__layout--multi-stat {
-				grid-template-columns: minmax(220px, 0.85fr) minmax(0, 1.8fr) minmax(380px, 1fr);
+				grid-template-columns: minmax(170px, 0.8fr) minmax(0, 1.6fr) minmax(270px, 0.85fr);
 			}
 
 			.clinical-values-block-2__images {
-				gap: 22px;
+				gap: 18px;
 			}
 
 			.clinical-values-block-2__stat--multi {
-				max-width: 380px;
-				flex: 0 0 380px;
+				max-width: 270px;
+				flex: 0 0 270px;
 			}
 
 			.clinical-values-block-2__stat-label {
-				font-size: 20px;
+				font-size: 14px;
 			}
 		}
 
 		@media (max-width: 1199px) {
 			.clinical-values-block-2 {
-				padding: 34px 22px 42px;
+				padding: 26px 18px 32px;
 			}
 
 			.clinical-values-block-2__layout,
@@ -577,24 +638,24 @@ if (!$has_content) {
 			}
 
 			.clinical-values-block-2__stat {
-				width: 220px;
-				max-width: 220px;
-				padding: 22px 18px 18px;
-				flex: 0 0 220px;
+				width: 160px;
+				max-width: 160px;
+				padding: 16px 12px 12px;
+				flex: 0 0 160px;
 			}
 
 			.clinical-values-block-2__stat--multi {
 				width: auto;
-				max-width: 420px;
+				max-width: 300px;
 				flex: 0 0 auto;
 			}
 
 			.clinical-values-block-2__stat-value {
-				font-size: clamp(46px, 4.6vw, 64px);
+				font-size: clamp(36px, 4vw, 48px);
 			}
 
 			.clinical-values-block-2__stat-label {
-				font-size: 18px;
+				font-size: 15px;
 			}
 
 			.clinical-values-block-2__images {
@@ -602,24 +663,24 @@ if (!$has_content) {
 			}
 
 			.clinical-values-block-2__cta-wrap {
-				padding-top: 30px;
+				padding-top: 24px;
 			}
 		}
 
 		@media (max-width: 900px) {
 			.clinical-values-block-2__images {
 				grid-template-columns: 1fr;
-				gap: 26px;
+				gap: 22px;
 			}
 
 			.clinical-values-block-2__image-card {
-				max-width: 720px;
+				max-width: 520px;
 			}
 		}
 
 		@media (max-width: 767px) {
 			.clinical-values-block-2 {
-				padding: 28px 16px 34px;
+				padding: 24px 16px 30px;
 			}
 
 			.clinical-values-block-2__eyebrow {
@@ -627,8 +688,8 @@ if (!$has_content) {
 			}
 
 			.clinical-values-block-2__badge {
-				padding: 10px 20px;
-				font-size: 18px;
+				padding: 8px 16px;
+				font-size: 15px;
 			}
 
 			.clinical-values-block-2__tag {
@@ -636,7 +697,15 @@ if (!$has_content) {
 			}
 
 			.clinical-values-block-2__description {
-				font-size: 15px;
+				font-size: 14px;
+			}
+
+			.clinical-values-block-2__caption,
+			.clinical-values-block-2__caption p,
+			.clinical-values-block-2__caption div,
+			.clinical-values-block-2__caption span {
+				text-align: center !important;
+				width: 100%;
 			}
 
 			.clinical-values-block-2__cta {
@@ -646,10 +715,10 @@ if (!$has_content) {
 			}
 
 			.clinical-values-block-2__stat {
-				width: 190px;
-				max-width: 190px;
-				padding: 20px 16px 16px;
-				flex: 0 0 190px;
+				width: 150px;
+				max-width: 150px;
+				padding: 16px 12px 12px;
+				flex: 0 0 150px;
 			}
 
 			.clinical-values-block-2__stat--multi {
@@ -660,7 +729,7 @@ if (!$has_content) {
 
 			.clinical-values-block-2__stat-group {
 				flex-wrap: wrap;
-				gap: 18px;
+				gap: 16px;
 			}
 
 			.clinical-values-block-2__stat-item {
@@ -677,16 +746,95 @@ if (!$has_content) {
 			}
 
 			.clinical-values-block-2__stat-value {
-				font-size: clamp(42px, 12vw, 58px);
+				font-size: clamp(38px, 12vw, 52px);
 			}
 
 			.clinical-values-block-2__stat-label {
-				font-size: 18px;
+				font-size: 16px;
 				white-space: normal;
 			}
 
 			.clinical-values-block-2__stat--multi.clinical-values-block-2__stat-decoration::before {
 				left: 0;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__layout,
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__layout--multi-stat {
+				grid-template-columns: minmax(0, 1fr) auto;
+				grid-template-areas:
+					"left right"
+					"center center"
+					"mobile-cta mobile-cta";
+				column-gap: 12px;
+				row-gap: 22px;
+				align-items: start;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout.clinical-values-block-2--featured-mobile-layout-has-meta .clinical-values-block-2__layout,
+			.clinical-values-block-2--featured-mobile-layout.clinical-values-block-2__layout--multi-stat {
+				grid-template-areas:
+					"left right"
+					"mobile-meta mobile-meta"
+					"center center"
+					"mobile-cta mobile-cta";
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__left {
+				grid-area: left;
+				min-width: 0;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__center {
+				grid-area: center;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__right {
+				grid-area: right;
+				justify-content: flex-end;
+				align-items: flex-start;
+				align-self: start;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__stat {
+				width: auto;
+				max-width: none;
+				min-width: 120px;
+				padding: 12px 12px 12px 12px;
+				flex: 0 0 auto;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__left .clinical-values-block-2__tags,
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__left .clinical-values-block-2__description {
+				display: none;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__mobile-meta {
+				display: block;
+				grid-area: mobile-meta;
+				width: 100%;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__tags--mobile {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				margin-top: 0;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__tags--mobile .clinical-values-block-2__tag {
+				white-space: nowrap;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__cta-wrap--desktop {
+				display: none;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__cta-wrap--mobile {
+				display: block;
+				grid-area: mobile-cta;
+				width: 100%;
+				margin: 0;
+				padding-top: 0;
 			}
 		}
 	</style>
@@ -735,11 +883,11 @@ if (!$has_content) {
 				<?php endif; ?>
 
 				<?php if (!empty($cta['text']) && !empty($cta['url'])) : ?>
-					<div class="clinical-values-block-2__cta-wrap">
+					<div class="clinical-values-block-2__cta-wrap clinical-values-block-2__cta-wrap--desktop">
 						<a
 							class="clinical-values-block-2__cta"
 							href="<?php echo esc_url($cta['url']); ?>"
-							style="border-color: <?php echo esc_attr($cta['border_color']); ?>; background-color: <?php echo esc_attr($cta['bg_color']); ?>; color: <?php echo esc_attr($cta['text_color']); ?>;"
+							style="--cta-border-color: <?php echo esc_attr($cta['border_color']); ?>; --cta-bg-color: <?php echo esc_attr($cta['bg_color']); ?>; --cta-text-color: <?php echo esc_attr($cta['text_color']); ?>; border-color: <?php echo esc_attr($cta['border_color']); ?>;"
 						>
 							<span><?php echo esc_html($cta['text']); ?></span>
 							<span class="clinical-values-block-2__cta-icon" aria-hidden="true">
@@ -751,6 +899,29 @@ if (!$has_content) {
 					</div>
 				<?php endif; ?>
 			</div>
+
+			<?php if ($has_mobile_meta) : ?>
+				<div class="clinical-values-block-2__mobile-meta">
+					<?php if (!empty($tags)) : ?>
+						<div class="clinical-values-block-2__tags clinical-values-block-2__tags--mobile">
+							<?php foreach ($tags as $tag) : ?>
+								<div
+									class="clinical-values-block-2__tag"
+									style="background-color: <?php echo esc_attr($tag['bg_color']); ?>; color: <?php echo esc_attr($tag['text_color']); ?>;"
+								>
+									<?php echo esc_html($tag['text']); ?>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+
+					<?php if (!empty($description_line)) : ?>
+						<p class="clinical-values-block-2__description">
+							<?php echo nl2br(esc_html($description_line)); ?>
+						</p>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
 
 			<div class="clinical-values-block-2__center">
 				<?php if (!empty($images_items)) : ?>
@@ -784,6 +955,23 @@ if (!$has_content) {
 					</div>
 				<?php endif; ?>
 			</div>
+
+			<?php if (!empty($cta['text']) && !empty($cta['url'])) : ?>
+				<div class="clinical-values-block-2__cta-wrap clinical-values-block-2__cta-wrap--mobile">
+					<a
+						class="clinical-values-block-2__cta"
+						href="<?php echo esc_url($cta['url']); ?>"
+						style="--cta-border-color: <?php echo esc_attr($cta['border_color']); ?>; --cta-bg-color: <?php echo esc_attr($cta['bg_color']); ?>; --cta-text-color: <?php echo esc_attr($cta['text_color']); ?>; border-color: <?php echo esc_attr($cta['border_color']); ?>;"
+					>
+						<span><?php echo esc_html($cta['text']); ?></span>
+						<span class="clinical-values-block-2__cta-icon" aria-hidden="true">
+							<svg viewBox="0 0 14 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M2 2L11 11L2 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						</span>
+					</a>
+				</div>
+			<?php endif; ?>
 
 			<div class="clinical-values-block-2__right">
 				<?php if (!empty($stats)) : ?>
