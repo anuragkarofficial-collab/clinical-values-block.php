@@ -263,20 +263,24 @@ if (!$has_content) {
 
 		.clinical-values-block-2__header {
 			margin-bottom: 20px;
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
 		}
 
 		.clinical-values-block-2__eyebrow {
-			margin: 0 0 4px;
+			margin: 0 !important;
 			color: #ffffff;
 			font-size: 14px;
-			font-weight: 400 !important;
+			font-weight: 300 !important;
+			font-family: 'Mont', sans-serif;
 			letter-spacing: 0.16em;
 			text-transform: uppercase;
 			line-height: 1;
 		}
 
 		.clinical-values-block-2__title {
-			margin: 0;
+			margin: 0 !important;
 			color: #ffffff;
 			font-size: clamp(30px, 3.2vw, 50px);
 			font-weight: 700;
