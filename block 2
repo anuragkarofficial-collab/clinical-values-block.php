@@ -240,7 +240,7 @@ if (!$has_content) {
 }
 ?>
 
-<section class="clinical-values-block-2<?php echo $is_cbct_block ? ' clinical-values-block-2--cbct' : ''; ?><?php echo $is_hawkct_block ? ' clinical-values-block-2--hawkct' : ''; ?><?php echo $enable_featured_mobile_layout ? ' clinical-values-block-2--featured-mobile-layout' : ''; ?><?php echo $has_mobile_meta ? ' clinical-values-block-2--featured-mobile-layout-has-meta' : ''; ?><?php echo $is_single_line_cta_block ? ' clinical-values-block-2--single-line-cta' : ''; ?>">
+<section class="clinical-values-block-2<?php echo $is_cbct_block ? ' clinical-values-block-2--cbct' : ''; ?><?php echo $is_hawkct_block ? ' clinical-values-block-2--hawkct' : ''; ?><?php echo $is_hawkai_block ? ' clinical-values-block-2--hawkai' : ''; ?><?php echo $enable_featured_mobile_layout ? ' clinical-values-block-2--featured-mobile-layout' : ''; ?><?php echo $has_mobile_meta ? ' clinical-values-block-2--featured-mobile-layout-has-meta' : ''; ?><?php echo $is_single_line_cta_block ? ' clinical-values-block-2--single-line-cta' : ''; ?>">
 	<style>
 		.clinical-values-block-2,
 		.clinical-values-block-2 * {
@@ -252,7 +252,8 @@ if (!$has_content) {
 			width: 100%;
 			background: #000;
 			overflow: hidden;
-			padding: 30px 24px 36px;
+			padding: 38px 24px 48px;
+            font-family: 'Mont', sans-serif;
 		}
 
 		.clinical-values-block-2__inner {
@@ -282,17 +283,17 @@ if (!$has_content) {
 		.clinical-values-block-2__title {
 			margin: 0 !important;
 			color: #ffffff;
-			font-size: clamp(30px, 3.2vw, 50px);
+			font-size: 45px;
 			font-weight: 700;
-			line-height: 0.98;
+			line-height: 1.25;
 			letter-spacing: -0.03em;
 		}
 
 		.clinical-values-block-2__title--cbct {
 			font-family: 'Mont', sans-serif;
 			font-weight: 400;
-			letter-spacing: -0.035em;
-			line-height: 0.98;
+			letter-spacing: -0.055em;
+			line-height: 1.25;
 		}
 
 		.clinical-values-block-2__layout {
@@ -321,7 +322,7 @@ if (!$has_content) {
 			justify-content: center;
 			min-height: 36px;
 			padding: 8px 18px;
-			border-radius: 12px;
+			border-radius: 7px;
 			font-size: clamp(15px, 1.1vw, 18px);
 			font-weight: 700;
 			line-height: 1;
@@ -451,7 +452,7 @@ if (!$has_content) {
 		.clinical-values-block-2__caption {
 			margin-top: 12px;
 			color: #ffffff;
-			font-size: clamp(13px, 1vw, 16px);
+			font-size: 18px;
 			font-weight: 400 !important;
 			line-height: 1.25;
 			text-align: center;
@@ -518,7 +519,7 @@ if (!$has_content) {
 		}
 
 		.clinical-values-block-2__stat-item--offset-first {
-			margin-left: 88px;
+			margin-left: 160px;
 		}
 
 		.clinical-values-block-2__stat-item--offset-right {
@@ -533,7 +534,7 @@ if (!$has_content) {
 		.clinical-values-block-2__stat-value {
 			margin: 0 0 8px;
 			color: #ffffff;
-			font-size: clamp(36px, 3vw, 48px);
+			font-size: 45px;
 			font-weight: 700;
 			font-family: 'Mont', sans-serif;
 			line-height: 0.95;
@@ -544,7 +545,7 @@ if (!$has_content) {
 		.clinical-values-block-2__stat-label {
 			margin: 0;
 			color: rgba(255, 255, 255, 0.88);
-			font-size: 15px;
+			font-size: 18px;
 			font-weight: 400;
 			line-height: 1.1;
 			white-space: nowrap;
@@ -554,8 +555,8 @@ if (!$has_content) {
 		.clinical-values-block-2__stat-decoration::after {
 			content: "";
 			position: absolute;
-			width: 24px;
-			height: 24px;
+			width: 18px;
+			height: 18px;
 			pointer-events: none;
 		}
 
@@ -567,7 +568,7 @@ if (!$has_content) {
 		}
 
 		.clinical-values-block-2__stat--multi.clinical-values-block-2__stat-decoration::before {
-			left: 88px;
+			left: 160px;
 		}
 
 		.clinical-values-block-2__stat-decoration::after {
@@ -591,6 +592,42 @@ if (!$has_content) {
 			.clinical-values-block-2--hawkct .clinical-values-block-2__image-card:first-child .clinical-values-block-2__caption div,
 			.clinical-values-block-2--hawkct .clinical-values-block-2__image-card:first-child .clinical-values-block-2__caption span {
 				text-align: center !important;
+			}
+
+			.clinical-values-block-2--hawkct .clinical-values-block-2__caption {
+                margin-top: 32px;
+                font-size: 16px;
+                line-height: 1.2;
+            }
+
+			.clinical-values-block-2--cbct .clinical-values-block-2__caption {
+		        margin-top: 20px;
+		        font-size: 16px;
+		        line-height: 1.2;
+			 }
+			
+			.clinical-values-block-2--hawkai .clinical-values-block-2__caption {
+		        margin-top: 28px;
+		        font-size: 16px;
+		        line-height: 1.2;
+			 }
+			
+			/* HAWKCT DESKTOP MANUAL POSITIONING */
+			.clinical-values-block-2--hawkct .clinical-values-block-2__right {
+				justify-content: center;
+			}
+
+			.clinical-values-block-2--hawkct .clinical-values-block-2__stat {
+				text-align: center;
+				transform: translateX(0px); /* move whole stat block left/right */
+			}
+
+			.clinical-values-block-2--hawkct .clinical-values-block-2__stat-value {
+				transform: translateX(0px); /* move only the value */
+			}
+
+			.clinical-values-block-2--hawkct .clinical-values-block-2__stat-label {
+				transform: translateX(0px); /* move only the label */
 			}
 		}
 
@@ -655,7 +692,7 @@ if (!$has_content) {
 			}
 
 			.clinical-values-block-2__stat-value {
-				font-size: clamp(36px, 4vw, 48px);
+				font-size: 30px;
 			}
 
 			.clinical-values-block-2__stat-label {
@@ -691,17 +728,40 @@ if (!$has_content) {
 				font-size: 14px;
 			}
 
+			.clinical-values-block-2__title {
+				font-size: 35px;
+				white-space: normal;
+				overflow-wrap: anywhere;
+				word-break: normal;
+			}
+
 			.clinical-values-block-2__badge {
 				padding: 8px 16px;
 				font-size: 15px;
 			}
 
+			.clinical-values-block-2__tags {
+				flex-direction: column;
+				flex-wrap: nowrap;
+				align-items: flex-start;
+				gap: 8px;
+			}
+			
+			.clinical-values-block-2__tags .clinical-values-block-2__tag {
+				max-width: 100%;
+			}
+
 			.clinical-values-block-2__tag {
-				white-space: normal;
+				white-space: nowrap;
+				justify-content: flex-start;
+				text-align: left;
+                min-height: 18px;
+                padding: 2px 6px;
+                font-size: 10px;
 			}
 
 			.clinical-values-block-2__description {
-				font-size: 14px;
+				font-size: 12px;
 			}
 
 			.clinical-values-block-2__caption,
@@ -741,16 +801,25 @@ if (!$has_content) {
 			}
 
 			.clinical-values-block-2__stat-item--offset-first {
-				margin-left: 0;
+				margin-left: 0px;
 			}
+			
+			.clinical-values-block-2__stat-item--offset-first .clinical-values-block-2__stat-value {
+	            padding-left: 22px;
+			}
+			
+			.clinical-values-block-2__stat-item--offset-first .clinical-values-block-2__stat-label {
+	            padding-left: 12px;
+            }
 
 			.clinical-values-block-2__stat-item--offset-right {
 				width: 100%;
 				align-self: auto;
+                margin-left: 18px;
 			}
 
 			.clinical-values-block-2__stat-value {
-				font-size: clamp(38px, 12vw, 52px);
+				font-size: 30px;
 			}
 
 			.clinical-values-block-2__stat-label {
@@ -760,6 +829,34 @@ if (!$has_content) {
 
 			.clinical-values-block-2__stat--multi.clinical-values-block-2__stat-decoration::before {
 				left: 0;
+			}
+
+			.clinical-values-block-2__images {
+				grid-template-columns: repeat(var(--images-count, 3), minmax(0, 1fr));
+				gap: 12px;
+				align-items: start;
+				justify-items: stretch;
+			}
+
+			.clinical-values-block-2__image-card {
+				max-width: none;
+				width: 100%;
+			}
+
+			.clinical-values-block-2__image-wrap {
+				width: 100%;
+			}
+
+			.clinical-values-block-2__image {
+				width: 100%;
+				height: auto;
+			}
+
+			.clinical-values-block-2__caption {
+				margin-top: 10px;
+				font-size: 12px;
+				line-height: 1.2;
+				white-space: normal;
 			}
 
 			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__layout,
@@ -778,7 +875,6 @@ if (!$has_content) {
 			.clinical-values-block-2--featured-mobile-layout.clinical-values-block-2__layout--multi-stat {
 				grid-template-areas:
 					"left right"
-					"mobile-meta mobile-meta"
 					"center center"
 					"mobile-cta mobile-cta";
 			}
@@ -802,31 +898,40 @@ if (!$has_content) {
 			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__stat {
 				width: auto;
 				max-width: none;
-				min-width: 120px;
-				padding: 12px 12px 12px 12px;
+				min-width: 100px;
+				padding: 10px 10px 10px 10px;
 				flex: 0 0 auto;
 			}
 
-			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__left .clinical-values-block-2__tags,
+			.clinical-values-block-2--hawkai .clinical-values-block-2__stat-value {
+				font-size: 30px;
+				line-height: 0.9;
+			}
+
+			.clinical-values-block-2--hawkai .clinical-values-block-2__stat-group {
+				gap: 6px;
+			}
+
+			.clinical-values-block-2--hawkai .clinical-values-block-2__stat {
+				min-width: 72px;
+				padding: 4px 6px;
+                margin-left: 20px;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__left .clinical-values-block-2__tags {
+				display: flex;
+			}
+
 			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__left .clinical-values-block-2__description {
-				display: none;
+				display: block;
 			}
 
 			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__mobile-meta {
-				display: block;
-				grid-area: mobile-meta;
-				width: 100%;
+				display: none;
 			}
 
 			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__tags--mobile {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 8px;
-				margin-top: 0;
-			}
-
-			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__tags--mobile .clinical-values-block-2__tag {
-				white-space: nowrap;
+				display: none;
 			}
 
 			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__cta-wrap--desktop {
@@ -971,7 +1076,7 @@ if (!$has_content) {
 						<span class="clinical-values-block-2__cta-icon" aria-hidden="true">
 							<svg viewBox="0 0 14 22" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path d="M2 2L11 11L2 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+								</svg>
 						</span>
 					</a>
 				</div>
