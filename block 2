@@ -374,40 +374,71 @@ if (!$has_content) {
 			display: none;
 		}
 
-		.clinical-values-block-2__cta {
+		.clinical-values-block-2 .hc-btn {
 			display: inline-flex;
 			align-items: center;
+			justify-content: center;
 			gap: 10px;
-			padding: 12px 18px;
-			border: 2px solid;
-			border-radius: 10px;
+			min-height: 54px;
+			padding: 13px 16px;
+			border-radius: 8px;
+			border: 1px solid transparent;
 			font-size: 16px;
 			font-weight: 700;
 			line-height: 1.1;
 			text-decoration: none;
-			background-color: var(--cta-bg-color, transparent);
+			transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+			white-space: nowrap;
+			position: relative;
+			overflow: hidden;
+			isolation: isolate;
+			max-width: 100%;
+			font-family: 'Mont', sans-serif;
+		}
+
+		.clinical-values-block-2 .hc-btn:hover {
+			transform: translateY(-2px);
+		}
+
+		.clinical-values-block-2 .hc-btn-primary {
+			min-width: 260px;
+			background: var(--cta-bg-color, transparent);
 			color: var(--cta-text-color, #ffffff);
-			transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+			border-color: var(--cta-border-color, #ef4b73);
+			box-shadow: none;
 		}
 
-		.clinical-values-block-2__cta:hover,
-		.clinical-values-block-2__cta:focus-visible,
-		.clinical-values-block-2__cta:active {
-			background-color: var(--cta-border-color, #ef4b73) !important;
+		.clinical-values-block-2 .hc-btn-primary:hover,
+		.clinical-values-block-2 .hc-btn-primary:focus-visible,
+		.clinical-values-block-2 .hc-btn-primary:active {
+			background: var(--cta-border-color, #ef4b73) !important;
 			color: var(--cta-text-color, #ffffff) !important;
+			border-color: var(--cta-border-color, #ef4b73) !important;
 		}
 
-		.clinical-values-block-2__cta-icon {
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			flex: 0 0 auto;
+		.clinical-values-block-2 .hc-btn-arrow {
+			display: inline-block;
+			position: relative;
+			width: 10px;
+			height: 10px;
+			flex: 0 0 10px;
 		}
 
-		.clinical-values-block-2__cta-icon svg {
-			display: block;
-			width: 12px;
-			height: 18px;
+		.clinical-values-block-2 .hc-btn-arrow::before {
+			content: "";
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 8px;
+			height: 8px;
+			border-top: 2px solid currentColor;
+			border-right: 2px solid currentColor;
+			transform: translate(-60%, -50%) rotate(45deg);
+		}
+
+		.clinical-values-block-2 .hc-btn > span {
+			position: relative;
+			z-index: 2;
 		}
 
 		.clinical-values-block-2__center {
@@ -579,11 +610,11 @@ if (!$has_content) {
 		}
 
 		@media (min-width: 768px) {
-			.clinical-values-block-2--single-line-cta .clinical-values-block-2__cta {
+			.clinical-values-block-2--single-line-cta .hc-btn {
 				white-space: nowrap;
 			}
 
-			.clinical-values-block-2--single-line-cta .clinical-values-block-2__cta span:first-child {
+			.clinical-values-block-2--single-line-cta .hc-btn span:first-child {
 				white-space: nowrap;
 			}
 
@@ -612,22 +643,21 @@ if (!$has_content) {
 		        line-height: 1.2;
 			 }
 			
-			/* HAWKCT DESKTOP MANUAL POSITIONING */
 			.clinical-values-block-2--hawkct .clinical-values-block-2__right {
 				justify-content: center;
 			}
 
 			.clinical-values-block-2--hawkct .clinical-values-block-2__stat {
 				text-align: center;
-				transform: translateX(0px); /* move whole stat block left/right */
+				transform: translateX(0px);
 			}
 
 			.clinical-values-block-2--hawkct .clinical-values-block-2__stat-value {
-				transform: translateX(0px); /* move only the value */
+				transform: translateX(0px);
 			}
 
 			.clinical-values-block-2--hawkct .clinical-values-block-2__stat-label {
-				transform: translateX(0px); /* move only the label */
+				transform: translateX(0px);
 			}
 		}
 
@@ -706,6 +736,10 @@ if (!$has_content) {
 			.clinical-values-block-2__cta-wrap {
 				padding-top: 24px;
 			}
+
+			.clinical-values-block-2 .hc-btn-primary {
+				min-width: 0;
+			}
 		}
 
 		@media (max-width: 900px) {
@@ -772,10 +806,22 @@ if (!$has_content) {
 				width: 100%;
 			}
 
-			.clinical-values-block-2__cta {
+			.clinical-values-block-2 .hc-btn,
+			.clinical-values-block-2 .hc-btn-primary {
 				width: 100%;
-				justify-content: center;
+				max-width: 100%;
+				min-width: 0;
+				min-height: 58px;
+				padding: 14px 16px;
+				font-size: 14px;
+				white-space: normal;
 				text-align: center;
+			}
+
+			.clinical-values-block-2 .hc-btn-arrow {
+				width: 10px;
+				height: 10px;
+				flex: 0 0 10px;
 			}
 
 			.clinical-values-block-2__stat {
@@ -994,16 +1040,12 @@ if (!$has_content) {
 				<?php if (!empty($cta['text']) && !empty($cta['url'])) : ?>
 					<div class="clinical-values-block-2__cta-wrap clinical-values-block-2__cta-wrap--desktop">
 						<a
-							class="clinical-values-block-2__cta"
+							class="hc-btn hc-btn-primary"
 							href="<?php echo esc_url($cta['url']); ?>"
-							style="--cta-border-color: <?php echo esc_attr($cta['border_color']); ?>; --cta-bg-color: <?php echo esc_attr($cta['bg_color']); ?>; --cta-text-color: <?php echo esc_attr($cta['text_color']); ?>; border-color: <?php echo esc_attr($cta['border_color']); ?>;"
+							style="--cta-border-color: <?php echo esc_attr($cta['border_color']); ?>; --cta-bg-color: <?php echo esc_attr($cta['bg_color']); ?>; --cta-text-color: <?php echo esc_attr($cta['text_color']); ?>;"
 						>
 							<span><?php echo esc_html($cta['text']); ?></span>
-							<span class="clinical-values-block-2__cta-icon" aria-hidden="true">
-								<svg viewBox="0 0 14 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M2 2L11 11L2 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-								</svg>
-							</span>
+							<span class="hc-btn-arrow" aria-hidden="true"></span>
 						</a>
 					</div>
 				<?php endif; ?>
@@ -1068,16 +1110,12 @@ if (!$has_content) {
 			<?php if (!empty($cta['text']) && !empty($cta['url'])) : ?>
 				<div class="clinical-values-block-2__cta-wrap clinical-values-block-2__cta-wrap--mobile">
 					<a
-						class="clinical-values-block-2__cta"
+						class="hc-btn hc-btn-primary"
 						href="<?php echo esc_url($cta['url']); ?>"
-						style="--cta-border-color: <?php echo esc_attr($cta['border_color']); ?>; --cta-bg-color: <?php echo esc_attr($cta['bg_color']); ?>; --cta-text-color: <?php echo esc_attr($cta['text_color']); ?>; border-color: <?php echo esc_attr($cta['border_color']); ?>;"
+						style="--cta-border-color: <?php echo esc_attr($cta['border_color']); ?>; --cta-bg-color: <?php echo esc_attr($cta['bg_color']); ?>; --cta-text-color: <?php echo esc_attr($cta['text_color']); ?>;"
 					>
 						<span><?php echo esc_html($cta['text']); ?></span>
-						<span class="clinical-values-block-2__cta-icon" aria-hidden="true">
-							<svg viewBox="0 0 14 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M2 2L11 11L2 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-								</svg>
-						</span>
+						<span class="hc-btn-arrow" aria-hidden="true"></span>
 					</a>
 				</div>
 			<?php endif; ?>
