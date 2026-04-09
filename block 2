@@ -384,8 +384,9 @@ if (!$has_content) {
 			border-radius: 8px;
 			border: 1px solid transparent;
 			font-size: 16px;
-			font-weight: 700;
+			font-weight: 700 !important;
 			line-height: 1.1;
+			letter-spacing: 0;
 			text-decoration: none;
 			transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 			white-space: nowrap;
@@ -393,7 +394,7 @@ if (!$has_content) {
 			overflow: hidden;
 			isolation: isolate;
 			max-width: 100%;
-			font-family: 'Mont', sans-serif;
+			font-family: 'Mont', sans-serif !important;
 		}
 
 		.clinical-values-block-2 .hc-btn:hover {
@@ -404,8 +405,10 @@ if (!$has_content) {
 			min-width: 260px;
 			background: var(--cta-bg-color, transparent);
 			color: var(--cta-text-color, #ffffff);
-			border-color: var(--cta-border-color, #ef4b73);
+			border: 1px solid var(--cta-border-color, #ef4b73);
 			box-shadow: none;
+			font-weight: 700 !important;
+			font-family: 'Mont', sans-serif !important;
 		}
 
 		.clinical-values-block-2 .hc-btn-primary:hover,
@@ -418,27 +421,20 @@ if (!$has_content) {
 
 		.clinical-values-block-2 .hc-btn-arrow {
 			display: inline-block;
-			position: relative;
-			width: 10px;
-			height: 10px;
-			flex: 0 0 10px;
-		}
-
-		.clinical-values-block-2 .hc-btn-arrow::before {
-			content: "";
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			width: 8px;
-			height: 8px;
-			border-top: 2px solid currentColor;
-			border-right: 2px solid currentColor;
-			transform: translate(-60%, -50%) rotate(45deg);
+			font-size: 24px;
+			line-height: 1;
+			transform: translateY(-1px);
+			font-weight: 700 !important;
+			font-family: 'Mont', sans-serif !important;
 		}
 
 		.clinical-values-block-2 .hc-btn > span {
 			position: relative;
 			z-index: 2;
+		}
+
+		.clinical-values-block-2 .hc-btn > span:first-child {
+			font-weight: 700 !important;
 		}
 
 		.clinical-values-block-2__center {
@@ -818,12 +814,6 @@ if (!$has_content) {
 				text-align: center;
 			}
 
-			.clinical-values-block-2 .hc-btn-arrow {
-				width: 10px;
-				height: 10px;
-				flex: 0 0 10px;
-			}
-
 			.clinical-values-block-2__stat {
 				width: 150px;
 				max-width: 150px;
@@ -1045,7 +1035,7 @@ if (!$has_content) {
 							style="--cta-border-color: <?php echo esc_attr($cta['border_color']); ?>; --cta-bg-color: <?php echo esc_attr($cta['bg_color']); ?>; --cta-text-color: <?php echo esc_attr($cta['text_color']); ?>;"
 						>
 							<span><?php echo esc_html($cta['text']); ?></span>
-							<span class="hc-btn-arrow" aria-hidden="true"></span>
+							<span class="hc-btn-arrow" aria-hidden="true">›</span>
 						</a>
 					</div>
 				<?php endif; ?>
@@ -1115,7 +1105,7 @@ if (!$has_content) {
 						style="--cta-border-color: <?php echo esc_attr($cta['border_color']); ?>; --cta-bg-color: <?php echo esc_attr($cta['bg_color']); ?>; --cta-text-color: <?php echo esc_attr($cta['text_color']); ?>;"
 					>
 						<span><?php echo esc_html($cta['text']); ?></span>
-						<span class="hc-btn-arrow" aria-hidden="true"></span>
+						<span class="hc-btn-arrow" aria-hidden="true">›</span>
 					</a>
 				</div>
 			<?php endif; ?>
