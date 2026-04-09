@@ -345,11 +345,11 @@ if (!$has_content) {
 			align-items: center;
 			justify-content: center;
 			min-height: 24px;
-			padding: 5px 10px;
+			padding: 4px 8px;
 			border-radius: 7px;
-			font-size: 12px;
-			font-weight: 600;
-			line-height: 1.1;
+			font-size: 8px;
+			font-weight: 700;
+			line-height: 1;
 			text-align: center;
 			white-space: nowrap;
 		}
