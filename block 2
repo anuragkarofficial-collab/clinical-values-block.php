@@ -252,7 +252,7 @@ if (!$has_content) {
 			width: 100%;
 			background: #000;
 			overflow: hidden;
-			padding: 38px 24px 48px;
+			padding: 80px 24px 80px;
             font-family: 'Mont', sans-serif;
 		}
 
@@ -786,8 +786,8 @@ if (!$has_content) {
 				justify-content: flex-start;
 				text-align: left;
                 min-height: 18px;
-                padding: 2px 6px;
-                font-size: 10px;
+                padding: 2px 5px;
+                font-size: 8px;
 			}
 
 			.clinical-values-block-2__description {
