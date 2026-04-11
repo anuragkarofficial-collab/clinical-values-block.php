@@ -240,7 +240,7 @@ if (!$has_content) {
 }
 ?>
 
-<section class="clinical-values-block-2<?php echo $is_cbct_block ? ' clinical-values-block-2--cbct' : ''; ?><?php echo $is_hawkct_block ? ' clinical-values-block-2--hawkct' : ''; ?><?php echo $is_hawkai_block ? ' clinical-values-block-2--hawkai' : ''; ?><?php echo $enable_featured_mobile_layout ? ' clinical-values-block-2--featured-mobile-layout' : ''; ?><?php echo $has_mobile_meta ? ' clinical-values-block-2--featured-mobile-layout-has-meta' : ''; ?><?php echo $is_single_line_cta_block ? ' clinical-values-block-2--single-line-cta' : ''; ?>">
+<section id="clinical-values-block-2-<?php echo get_row_index(); ?>" class="clinical-values-block-2<?php echo $is_cbct_block ? ' clinical-values-block-2--cbct' : ''; ?><?php echo $is_hawkct_block ? ' clinical-values-block-2--hawkct' : ''; ?><?php echo $is_hawkai_block ? ' clinical-values-block-2--hawkai' : ''; ?><?php echo $enable_featured_mobile_layout ? ' clinical-values-block-2--featured-mobile-layout' : ''; ?><?php echo $has_mobile_meta ? ' clinical-values-block-2--featured-mobile-layout-has-meta' : ''; ?><?php echo $is_single_line_cta_block ? ' clinical-values-block-2--single-line-cta' : ''; ?>">
 	<style>
 		.clinical-values-block-2,
 		.clinical-values-block-2 * {
@@ -255,6 +255,13 @@ if (!$has_content) {
 			padding: 80px 24px 80px;
             font-family: 'Mont', sans-serif;
 		}
+		
+		@media (min-width: 1200px) {
+	        .clinical-values-block-2--hawkct {
+		        padding-top: 24px;
+		        padding-bottom: 24px;
+	        }
+        }
 
 		.clinical-values-block-2__inner {
 			width: 100%;
@@ -283,10 +290,10 @@ if (!$has_content) {
 		.clinical-values-block-2__title {
 			margin: 0 !important;
 			color: #ffffff;
-			font-size: 45px;
+			font-size: 52px !important;
 			font-weight: 700;
 			line-height: 1.25;
-			letter-spacing: -0.03em;
+			letter-spacing: -0.055em !important;
 		}
 
 		.clinical-values-block-2__title--cbct {
