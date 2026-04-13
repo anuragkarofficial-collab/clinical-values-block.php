@@ -1,0 +1,1341 @@
+<?php
+$sanitize_color = static function ($value, $fallback = '') {
+	$color = sanitize_hex_color($value);
+	return $color ? $color : $fallback;
+};
+
+$render_image = static function ($image, $class = '') {
+	if (empty($image)) {
+		return '';
+	}
+
+	$attrs = array(
+		'class'   => $class,
+		'loading' => 'lazy',
+	);
+
+	if (is_array($image) && !empty($image['ID'])) {
+		return wp_get_attachment_image((int) $image['ID'], 'full', false, $attrs);
+	}
+
+	if (is_numeric($image)) {
+		return wp_get_attachment_image((int) $image, 'full', false, $attrs);
+	}
+
+	if (is_array($image) && !empty($image['url'])) {
+		return sprintf(
+			'<img src="%1$s" alt="%2$s" class="%3$s" loading="lazy" />',
+			esc_url($image['url']),
+			esc_attr($image['alt'] ?? ''),
+			esc_attr($class)
+		);
+	}
+
+	if (is_string($image)) {
+		return sprintf(
+			'<img src="%1$s" alt="" class="%2$s" loading="lazy" />',
+			esc_url($image),
+			esc_attr($class)
+		);
+	}
+
+	return '';
+};
+
+$get_rows = static function ($field_name) {
+	$value = get_sub_field($field_name);
+
+	if (empty($value) || !is_array($value)) {
+		return array();
+	}
+
+	$is_sequential = array_keys($value) === range(0, count($value) - 1);
+
+	return $is_sequential ? $value : array($value);
+};
+
+$eyebrow   = get_sub_field('eyebrow_title') ?: get_sub_field('eyebrow');
+$title     = get_sub_field('title');
+$title_tag = get_sub_field('title_tag') ?: 'h2';
+
+$allowed_title_tags = array('h1', 'h2', 'h3');
+if (!in_array($title_tag, $allowed_title_tags, true)) {
+	$title_tag = 'h2';
+}
+
+$product_badge = array(
+	'text'       => '',
+	'bg_color'   => '#f6d7df',
+	'text_color' => '#ef4b73',
+);
+
+$product_badge_rows = $get_rows('product_badge');
+foreach ($product_badge_rows as $row) {
+	if (!is_array($row)) {
+		continue;
+	}
+
+	if (isset($row['acf_fc_layout']) && $row['acf_fc_layout'] !== 'product_badge_item') {
+		continue;
+	}
+
+	$product_badge['text']       = $row['badge_text'] ?? '';
+	$product_badge['bg_color']   = $sanitize_color($row['badge_background_color'] ?? '', '#f6d7df');
+	$product_badge['text_color'] = $sanitize_color($row['badge_text_color'] ?? '', '#ef4b73');
+	break;
+}
+
+$description_line = get_sub_field('description_line') ?: '';
+
+$tags = array();
+$tags_rows = $get_rows('tags');
+foreach ($tags_rows as $row) {
+	if (!is_array($row)) {
+		continue;
+	}
+
+	$tag_text = $row['tag_text'] ?? '';
+	if (!$tag_text) {
+		continue;
+	}
+
+	$tags[] = array(
+		'text'       => $tag_text,
+		'text_color' => $sanitize_color($row['tag_text_color'] ?? '', '#ffffff'),
+		'bg_color'   => $sanitize_color($row['tag_background_color'] ?? '', '#4f4f53'),
+	);
+}
+
+$images_items = array();
+$images_rows = $get_rows('images_items');
+foreach ($images_rows as $row) {
+	if (!is_array($row)) {
+		continue;
+	}
+
+	$image   = $row['image'] ?? '';
+	$caption = $row['caption'] ?? '';
+
+	if (!$image && !$caption) {
+		continue;
+	}
+
+	$images_items[] = array(
+		'image'   => $image,
+		'caption' => $caption,
+	);
+}
+
+$stats = array();
+$stat_rows = $get_rows('stat');
+foreach ($stat_rows as $row) {
+	if (!is_array($row)) {
+		continue;
+	}
+
+	if (isset($row['acf_fc_layout']) && $row['acf_fc_layout'] !== 'stat_item') {
+		continue;
+	}
+
+	$stat_value = $row['stat_value'] ?? '';
+	$stat_label = $row['stat_label'] ?? '';
+
+	if ($stat_value === '' && $stat_label === '') {
+		continue;
+	}
+
+	$stats[] = array(
+		'value'        => $stat_value,
+		'label'        => $stat_label,
+		'border_color' => $sanitize_color($row['stat_border_color'] ?? '', '#ef4b73'),
+	);
+}
+
+$stat = array(
+	'value'        => '',
+	'label'        => '',
+	'border_color' => '#ef4b73',
+);
+
+if (!empty($stats)) {
+	$stat = $stats[0];
+}
+
+$has_multiple_stats = count($stats) > 1;
+
+$show_stat_decoration = (bool) get_sub_field('show_stat_decoration');
+
+$cta = array(
+	'text'         => '',
+	'url'          => '',
+	'border_color' => '#ef4b73',
+	'text_color'   => '#ffffff',
+	'bg_color'     => 'transparent',
+);
+
+$cta_rows = $get_rows('cta');
+foreach ($cta_rows as $row) {
+	if (!is_array($row)) {
+		continue;
+	}
+
+	if (isset($row['acf_fc_layout']) && $row['acf_fc_layout'] !== 'cta_items') {
+		continue;
+	}
+
+	$cta_url = $row['cta_url'] ?? '';
+	if (is_array($cta_url)) {
+		$cta_url = $cta_url['url'] ?? '';
+	}
+
+	$cta['text']       = $row['cta_text'] ?? '';
+	$cta['url']        = $cta_url;
+	$cta['text_color'] = $sanitize_color($row['cta_text_color'] ?? '', '#ffffff');
+
+	$cta_border = $sanitize_color($row['cta_background'] ?? '');
+	$cta_fill   = $sanitize_color($row['cta_background_color'] ?? '');
+
+	$cta['border_color'] = $cta_border ?: ($cta_fill ?: '#ef4b73');
+	$cta['bg_color']     = $cta_fill ?: 'transparent';
+	break;
+}
+
+/* CTA border always follows the first stat border color */
+if (!empty($stat['border_color'])) {
+	$cta['border_color'] = $stat['border_color'];
+}
+
+$is_cbct_block   = (stripos((string) $product_badge['text'], 'hawkcbct') !== false || stripos((string) $product_badge['text'], 'cbct') !== false);
+$is_hawkct_block = (stripos((string) $product_badge['text'], 'hawkct') !== false);
+$is_hawkai_block = (stripos((string) $product_badge['text'], 'hawkai') !== false);
+$is_single_line_cta_block = ($is_cbct_block || $is_hawkai_block);
+$show_hawkai_note = ($is_hawkai_block && get_row_index() === 6);
+
+$enable_featured_mobile_layout = ($is_cbct_block || $is_hawkct_block || $is_hawkai_block);
+$has_mobile_meta = ($enable_featured_mobile_layout && (!empty($tags) || !empty($description_line)));
+
+/* Animate the original CBCT single stat, or any block that has multiple stat rows */
+$enable_stat_animation = (
+	!empty($stats) &&
+	(
+		$is_cbct_block ||
+		$has_multiple_stats
+	)
+);
+
+$images_count = count($images_items);
+
+$has_content = (
+	!empty($eyebrow) ||
+	!empty($title) ||
+	!empty($product_badge['text']) ||
+	!empty($description_line) ||
+	!empty($tags) ||
+	!empty($images_items) ||
+	!empty($stats) ||
+	!empty($cta['text'])
+);
+
+if (!$has_content) {
+	return;
+}
+?>
+
+<section id="clinical-values-block-2-<?php echo get_row_index(); ?>" class="clinical-values-block-2<?php echo $is_cbct_block ? ' clinical-values-block-2--cbct' : ''; ?><?php echo $is_hawkct_block ? ' clinical-values-block-2--hawkct' : ''; ?><?php echo $is_hawkai_block ? ' clinical-values-block-2--hawkai' : ''; ?><?php echo $enable_featured_mobile_layout ? ' clinical-values-block-2--featured-mobile-layout' : ''; ?><?php echo $has_mobile_meta ? ' clinical-values-block-2--featured-mobile-layout-has-meta' : ''; ?><?php echo $is_single_line_cta_block ? ' clinical-values-block-2--single-line-cta' : ''; ?>">
+	<style>
+		.clinical-values-block-2,
+		.clinical-values-block-2 * {
+			box-sizing: border-box;
+		}
+
+		.clinical-values-block-2 {
+			position: relative;
+			width: 100%;
+			background: #000;
+			overflow: hidden;
+			padding: 128px 80px;
+			font-family: 'Mont', sans-serif;
+		}
+		
+		@media (min-width: 1200px) {
+			#clinical-values-block-2-4 {
+				padding-bottom: 70px;
+			}	
+			
+			#clinical-values-block-2-5 {
+				padding-top: 0px;
+				padding-bottom: 0px;
+			}
+		   
+		    #clinical-values-block-2-6 {
+				padding-top: 70px;
+			} 	
+		}
+
+		.clinical-values-block-2__inner {
+			width: 100%;
+			max-width: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		.clinical-values-block-2__header {
+			margin-bottom: 20px;
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.clinical-values-block-2__eyebrow {
+			margin: 0 !important;
+			color: #ffffff;
+			font-size: 14px;
+			font-weight: 300 !important;
+			font-family: 'Mont', sans-serif;
+			letter-spacing: 0.16em;
+			text-transform: uppercase;
+			line-height: 1;
+		}
+
+		.clinical-values-block-2__title {
+			margin: 0 !important;
+			color: #ffffff;
+			font-size: 52px !important;
+			font-weight: 700;
+			line-height: 1.25;
+			letter-spacing: -0.055em !important;
+		}
+
+		.clinical-values-block-2__title--cbct {
+			font-family: 'Mont', sans-serif;
+			font-weight: 400;
+			letter-spacing: -0.055em;
+			line-height: 1.25;
+		}
+
+		.clinical-values-block-2__layout {
+			display: grid;
+			grid-template-columns: minmax(180px, 0.85fr) minmax(0, 1.7fr) minmax(160px, 0.55fr);
+			align-items: stretch;
+			column-gap: 22px;
+			row-gap: 18px;
+		}
+
+		.clinical-values-block-2__layout--multi-stat {
+			grid-template-columns: minmax(180px, 0.85fr) minmax(0, 1.7fr) minmax(300px, 0.9fr);
+		}
+
+		.clinical-values-block-2__left {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			min-width: 0;
+			padding-top: 4px;
+		}
+
+		.clinical-values-block-2__badge {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 36px;
+			padding: 8px 18px;
+			border-radius: 7px;
+			font-size: 16px;
+			font-weight: 700;
+			line-height: 1;
+			text-align: center;
+		}
+
+		.clinical-values-block-2__tags {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+			margin-top: 16px;
+		}
+
+		.clinical-values-block-2__tags--mobile {
+			display: none;
+		}
+
+		.clinical-values-block-2__tag {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 24px;
+			padding: 4px 8px;
+			border-radius: 7px;
+			font-size: 8px;
+			font-weight: 700;
+			line-height: 1;
+			text-align: center;
+			white-space: nowrap;
+		}
+
+		.clinical-values-block-2__description {
+			margin: 10px 0 0;
+			color: rgba(255, 255, 255, 0.9);
+			font-size: 13px;
+			line-height: 1.35;
+		}
+
+		.clinical-values-block-2__mobile-meta {
+			display: none;
+		}
+
+		.clinical-values-block-2__cta-wrap {
+			margin-top: auto;
+			padding-top: 38px;
+		}
+
+		.clinical-values-block-2__cta-wrap--mobile {
+			display: none;
+		}
+
+		.clinical-values-block-2 .hc-btn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+			min-height: 54px;
+			padding: 13px 16px;
+			border-radius: 8px;
+			border: 1px solid transparent;
+			font-size: 16px;
+			font-weight: 700 !important;
+			line-height: 1.1;
+			letter-spacing: 0;
+			text-decoration: none;
+			transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+			white-space: nowrap;
+			position: relative;
+			overflow: hidden;
+			isolation: isolate;
+			max-width: 100%;
+			font-family: 'Mont', sans-serif !important;
+		}
+
+		.clinical-values-block-2 .hc-btn:hover {
+			transform: translateY(-2px);
+		}
+
+		.clinical-values-block-2 .hc-btn-primary {
+			min-width: 260px;
+			background: var(--cta-bg-color, transparent);
+			color: var(--cta-text-color, #ffffff);
+			border: 1px solid var(--cta-border-color, #ef4b73);
+			box-shadow: none;
+			font-weight: 700 !important;
+			font-family: 'Mont', sans-serif !important;
+		}
+
+		.clinical-values-block-2 .hc-btn-primary:hover,
+		.clinical-values-block-2 .hc-btn-primary:focus-visible,
+		.clinical-values-block-2 .hc-btn-primary:active {
+			background: var(--cta-border-color, #ef4b73) !important;
+			color: var(--cta-text-color, #ffffff) !important;
+			border-color: var(--cta-border-color, #ef4b73) !important;
+		}
+
+		.clinical-values-block-2 .hc-btn-arrow {
+			display: inline-block;
+			font-size: 24px;
+			line-height: 1;
+			transform: translateY(-1px);
+			font-weight: 700 !important;
+			font-family: 'Mont', sans-serif !important;
+		}
+
+		.clinical-values-block-2 .hc-btn > span {
+			position: relative;
+			z-index: 2;
+		}
+
+		.clinical-values-block-2 .hc-btn > span:first-child {
+			font-weight: 700 !important;
+		}
+
+		.clinical-values-block-2__center {
+			width: 100%;
+			min-width: 0;
+		}
+
+		.clinical-values-block-2__layout--multi-stat .clinical-values-block-2__center {
+			transform: translateX(60px);
+		}
+
+		.clinical-values-block-2__images {
+			display: grid;
+			grid-template-columns: repeat(var(--images-count, 3), minmax(0, 1fr));
+			gap: 20px;
+			align-items: start;
+			justify-items: center;
+			width: 100%;
+			max-width: 100%;
+			margin: 0 auto;
+		}
+
+		.clinical-values-block-2__image-card {
+			width: 100%;
+			max-width: 300px;
+			margin: 0;
+			text-align: center;
+		}
+
+		.clinical-values-block-2__image-wrap {
+			width: 100%;
+			margin: 0 auto;
+		}
+
+		.clinical-values-block-2__image {
+			display: block;
+			width: 100%;
+			height: auto;
+			margin: 0 auto;
+		}
+
+		.clinical-values-block-2--cbct .clinical-values-block-2__image-card {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.clinical-values-block-2--cbct .clinical-values-block-2__image-wrap {
+			width: 100%;
+			aspect-ratio: 1 / 1;
+			display: flex;
+			align-items: flex-end;
+			justify-content: center;
+		}
+
+		.clinical-values-block-2--cbct .clinical-values-block-2__image {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+		}
+
+		.clinical-values-block-2__caption {
+			margin-top: 12px;
+			color: #ffffff;
+			font-size: 18px;
+			font-weight: 400 !important;
+			line-height: 1.25;
+			text-align: center;
+		}
+
+		.clinical-values-block-2__caption *,
+		.clinical-values-block-2__caption p,
+		.clinical-values-block-2__caption div,
+		.clinical-values-block-2__caption span,
+		.clinical-values-block-2__caption a,
+		.clinical-values-block-2__caption small {
+			margin: 0;
+			text-align: inherit;
+			font-weight: 400 !important;
+			font-family: inherit;
+		}
+
+		.clinical-values-block-2__caption strong,
+		.clinical-values-block-2__caption b {
+			font-weight: 700 !important;
+		}
+
+		.clinical-values-block-2__caption em,
+		.clinical-values-block-2__caption i {
+			font-style: italic;
+		}
+
+		.clinical-values-block-2__caption--accent {
+			color: var(--accent-color, #ef4b73);
+		}
+
+		.clinical-values-block-2__right {
+			display: flex;
+			justify-content: flex-end;
+			align-items: flex-start;
+			padding-top: 0;
+		}
+
+		.clinical-values-block-2__stat {
+			position: relative;
+			width: 100%;
+			max-width: 160px;
+			padding: 16px 12px 12px;
+			text-align: left;
+			flex: 0 0 160px;
+			align-self: flex-start;
+		}
+
+		.clinical-values-block-2__stat--multi {
+			max-width: 300px;
+			flex: 0 0 300px;
+		}
+
+		.clinical-values-block-2__stat-group {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+		}
+
+		.clinical-values-block-2__stat-item {
+			width: 100%;
+			min-width: 0;
+		}
+
+		.clinical-values-block-2__stat-item--offset-first {
+			margin-left: 160px;
+		}
+
+		.clinical-values-block-2__stat-item--offset-right {
+			width: auto;
+			align-self: flex-end;
+		}
+
+		.clinical-values-block-2__stat-separator {
+			display: none;
+		}
+
+		.clinical-values-block-2__stat-value {
+			margin: 0 0 8px;
+			color: #ffffff;
+			font-size: 45px;
+			font-weight: 700;
+			font-family: 'Mont', sans-serif;
+			line-height: 0.95;
+			letter-spacing: -0.05em;
+			white-space: nowrap;
+		}
+
+		.clinical-values-block-2__stat-label {
+			margin: 0;
+			color: rgba(255, 255, 255, 0.88);
+			font-size: 18px;
+			font-weight: 400;
+			line-height: 1.1;
+			white-space: nowrap;
+		}
+
+		.clinical-values-block-2__stat-decoration::before,
+		.clinical-values-block-2__stat-decoration::after {
+			content: "";
+			position: absolute;
+			width: 18px;
+			height: 18px;
+			pointer-events: none;
+		}
+
+		.clinical-values-block-2__stat-decoration::before {
+			top: 0;
+			left: 0;
+			border-top: 2px solid var(--stat-accent, #ef4b73);
+			border-left: 2px solid var(--stat-accent, #ef4b73);
+		}
+
+		.clinical-values-block-2__stat--multi.clinical-values-block-2__stat-decoration::before {
+			left: 160px;
+		}
+
+		.clinical-values-block-2__stat-decoration::after {
+			right: 0;
+			bottom: 0;
+			border-right: 2px solid var(--stat-accent, #ef4b73);
+			border-bottom: 2px solid var(--stat-accent, #ef4b73);
+		}
+
+        .clinical-values-block-2__bottom-note {
+	        position: absolute;
+	        right: 80px;
+	        bottom: 24px;
+	        margin: 0;
+	        color: rgba(255, 255, 255, 0.9);
+	        font-size: 14px;
+	        line-height: 1.2;
+	        font-weight: 400;
+	        z-index: 3;
+	        pointer-events: none;
+        }
+
+        @media (max-width: 1199px) {
+	        #clinical-values-block-2-6 .clinical-values-block-2__bottom-note {
+		        right: 24px;
+		        bottom: 20px;
+		        font-size: 13px;
+	        }
+        }
+
+        @media (max-width: 767px) {
+	        #clinical-values-block-2-6 .clinical-values-block-2__bottom-note {
+		        right: 24px;
+		        bottom: 16px;
+		        font-size: 11px;
+		        line-height: 1.3;
+	        }
+        }
+
+		@media (min-width: 768px) {
+			.clinical-values-block-2--single-line-cta .hc-btn {
+				white-space: nowrap;
+			}
+
+			.clinical-values-block-2--single-line-cta .hc-btn span:first-child {
+				white-space: nowrap;
+			}
+
+			.clinical-values-block-2--hawkct .clinical-values-block-2__image-card:first-child .clinical-values-block-2__caption,
+			.clinical-values-block-2--hawkct .clinical-values-block-2__image-card:first-child .clinical-values-block-2__caption p,
+			.clinical-values-block-2--hawkct .clinical-values-block-2__image-card:first-child .clinical-values-block-2__caption div,
+			.clinical-values-block-2--hawkct .clinical-values-block-2__image-card:first-child .clinical-values-block-2__caption span {
+				text-align: center !important;
+			}
+
+			.clinical-values-block-2--hawkct .clinical-values-block-2__caption {
+				margin-top: 32px;
+				font-size: 16px;
+				line-height: 1.2;
+			}
+
+			.clinical-values-block-2--cbct .clinical-values-block-2__caption {
+				margin-top: 20px;
+				font-size: 16px;
+				line-height: 1.2;
+			}
+			
+			.clinical-values-block-2--hawkai .clinical-values-block-2__caption {
+				margin-top: 28px;
+				font-size: 16px;
+				line-height: 1.2;
+			}
+			
+			.clinical-values-block-2--hawkct .clinical-values-block-2__right {
+				justify-content: center;
+			}
+
+		@media (min-width: 768px) {
+	        #clinical-values-block-2-5 .clinical-values-block-2__right {
+		        justify-content: flex-end;
+	        }
+
+			#clinical-values-block-2-5 .clinical-values-block-2__stat-value,
+            #clinical-values-block-2-5 .clinical-values-block-2__stat-label {
+	            transform: translateX(-10px);
+            }
+
+	        #clinical-values-block-2-5 .clinical-values-block-2__stat {
+		        text-align: center;
+		        transform: translateX(14px);
+	        }
+        }
+
+		@media (max-width: 1399px) {
+			.clinical-values-block-2__layout {
+				grid-template-columns: minmax(170px, 0.8fr) minmax(0, 1.6fr) minmax(150px, 0.5fr);
+				column-gap: 18px;
+			}
+
+			.clinical-values-block-2__layout--multi-stat {
+				grid-template-columns: minmax(170px, 0.8fr) minmax(0, 1.6fr) minmax(270px, 0.85fr);
+			}
+
+			.clinical-values-block-2__images {
+				gap: 18px;
+			}
+
+			.clinical-values-block-2__stat--multi {
+				max-width: 270px;
+				flex: 0 0 270px;
+			}
+
+			.clinical-values-block-2__stat-label {
+				font-size: 14px;
+			}
+		}
+
+		@media (max-width: 1199px) {
+			.clinical-values-block-2 {
+				padding: 64px 24px;
+			}
+
+			.clinical-values-block-2__layout,
+			.clinical-values-block-2__layout--multi-stat {
+				grid-template-columns: 1fr;
+			}
+
+			.clinical-values-block-2__left,
+			.clinical-values-block-2__right {
+				padding-top: 0;
+			}
+
+			.clinical-values-block-2__right {
+				justify-content: flex-start;
+			}
+
+			.clinical-values-block-2__layout--multi-stat .clinical-values-block-2__center {
+				transform: none;
+			}
+
+			.clinical-values-block-2__stat {
+				width: 160px;
+				max-width: 160px;
+				padding: 16px 12px 12px;
+				flex: 0 0 160px;
+			}
+
+			.clinical-values-block-2__stat--multi {
+				width: auto;
+				max-width: 300px;
+				flex: 0 0 auto;
+			}
+
+			.clinical-values-block-2__stat-value {
+				font-size: 30px;
+			}
+
+			.clinical-values-block-2__stat-label {
+				font-size: 15px;
+			}
+
+			.clinical-values-block-2__images {
+				grid-template-columns: repeat(var(--images-count, 3), minmax(0, 1fr));
+			}
+
+			.clinical-values-block-2__cta-wrap {
+				padding-top: 24px;
+			}
+
+			.clinical-values-block-2 .hc-btn-primary {
+				min-width: 0;
+			}
+		}
+
+		@media (max-width: 900px) {
+			.clinical-values-block-2__images {
+				grid-template-columns: 1fr;
+				gap: 22px;
+			}
+
+			.clinical-values-block-2__image-card {
+				max-width: 520px;
+			}
+		}
+
+		@media (max-width: 767px) {
+			.clinical-values-block-2 {
+				padding: 64px 24px;
+			}
+
+			.clinical-values-block-2__eyebrow {
+				font-size: 14px;
+			}
+
+			.clinical-values-block-2__title {
+				font-size: 35px;
+				white-space: normal;
+				overflow-wrap: anywhere;
+				word-break: normal;
+			}
+
+			.clinical-values-block-2__badge {
+				padding: 8px 16px;
+				font-size: 15px;
+			}
+
+			.clinical-values-block-2__tags {
+				flex-direction: column;
+				flex-wrap: nowrap;
+				align-items: flex-start;
+				gap: 8px;
+			}
+			
+			.clinical-values-block-2__tags .clinical-values-block-2__tag {
+				max-width: 100%;
+			}
+
+			.clinical-values-block-2__tag {
+				white-space: nowrap;
+				justify-content: flex-start;
+				text-align: left;
+				min-height: 18px;
+				padding: 2px 5px;
+				font-size: 8px;
+			}
+
+			.clinical-values-block-2__description {
+				font-size: 12px;
+			}
+
+			.clinical-values-block-2__caption,
+			.clinical-values-block-2__caption p,
+			.clinical-values-block-2__caption div,
+			.clinical-values-block-2__caption span {
+				text-align: center !important;
+				width: 100%;
+			}
+
+			.clinical-values-block-2 .hc-btn,
+			.clinical-values-block-2 .hc-btn-primary {
+				width: 100%;
+				max-width: 100%;
+				min-width: 0;
+				min-height: 58px;
+				padding: 14px 16px;
+				font-size: 14px;
+				white-space: normal;
+				text-align: center;
+			}
+
+			.clinical-values-block-2__stat {
+				width: 150px;
+				max-width: 150px;
+				padding: 16px 12px 12px;
+				flex: 0 0 150px;
+			}
+
+			.clinical-values-block-2__stat--multi {
+				width: 100%;
+				max-width: 100%;
+				flex: 0 0 auto;
+			}
+
+			.clinical-values-block-2__stat-group {
+				flex-wrap: wrap;
+				gap: 16px;
+			}
+
+			.clinical-values-block-2__stat-item {
+				width: 100%;
+			}
+
+			.clinical-values-block-2__stat-item--offset-first {
+				margin-left: 0px;
+			}
+			
+			.clinical-values-block-2__stat-item--offset-first .clinical-values-block-2__stat-value {
+				padding-left: 22px;
+			}
+			
+			.clinical-values-block-2__stat-item--offset-first .clinical-values-block-2__stat-label {
+				padding-left: 12px;
+			}
+
+			.clinical-values-block-2__stat-item--offset-right {
+				width: 100%;
+				align-self: auto;
+				margin-left: 18px;
+			}
+
+			.clinical-values-block-2__stat-value {
+				font-size: 30px;
+			}
+
+			.clinical-values-block-2__stat-label {
+				font-size: 16px;
+				white-space: normal;
+			}
+
+			.clinical-values-block-2__stat--multi.clinical-values-block-2__stat-decoration::before {
+				left: 0;
+			}
+
+			.clinical-values-block-2__images {
+				grid-template-columns: repeat(var(--images-count, 3), minmax(0, 1fr));
+				gap: 12px;
+				align-items: start;
+				justify-items: stretch;
+			}
+
+			.clinical-values-block-2__image-card {
+				max-width: none;
+				width: 100%;
+			}
+
+			.clinical-values-block-2__image-wrap {
+				width: 100%;
+			}
+
+			.clinical-values-block-2__image {
+				width: 100%;
+				height: auto;
+			}
+
+			.clinical-values-block-2__caption {
+				margin-top: 10px;
+				font-size: 12px;
+				line-height: 1.2;
+				white-space: normal;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__layout,
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__layout--multi-stat {
+				grid-template-columns: minmax(0, 1fr) auto;
+				grid-template-areas:
+					"left right"
+					"center center"
+					"mobile-cta mobile-cta";
+				column-gap: 12px;
+				row-gap: 22px;
+				align-items: start;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout.clinical-values-block-2--featured-mobile-layout-has-meta .clinical-values-block-2__layout,
+			.clinical-values-block-2--featured-mobile-layout.clinical-values-block-2__layout--multi-stat {
+				grid-template-areas:
+					"left right"
+					"center center"
+					"mobile-cta mobile-cta";
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__left {
+				grid-area: left;
+				min-width: 0;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__center {
+				grid-area: center;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__right {
+				grid-area: right;
+				justify-content: flex-end;
+				align-items: flex-start;
+				align-self: start;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__stat {
+				width: auto;
+				max-width: none;
+				min-width: 100px;
+				padding: 10px 10px 10px 10px;
+				flex: 0 0 auto;
+			}
+
+			.clinical-values-block-2--hawkai .clinical-values-block-2__stat-value {
+				font-size: 30px;
+				line-height: 0.9;
+			}
+
+			.clinical-values-block-2--hawkai .clinical-values-block-2__stat-group {
+				gap: 6px;
+			}
+
+			.clinical-values-block-2--hawkai .clinical-values-block-2__stat {
+				min-width: 72px;
+				padding: 4px 6px;
+				margin-left: 20px;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__left .clinical-values-block-2__tags {
+				display: flex;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__left .clinical-values-block-2__description {
+				display: block;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__mobile-meta {
+				display: none;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__tags--mobile {
+				display: none;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__cta-wrap--desktop {
+				display: none;
+			}
+
+			.clinical-values-block-2--featured-mobile-layout .clinical-values-block-2__cta-wrap--mobile {
+				display: block;
+				grid-area: mobile-cta;
+				width: 100%;
+				margin: 0;
+				padding-top: 0;
+			}
+        }
+	</style>
+
+	<div class="clinical-values-block-2__inner">
+		<?php if (!empty($eyebrow) || !empty($title)) : ?>
+			<div class="clinical-values-block-2__header">
+				<?php if (!empty($eyebrow)) : ?>
+					<p class="clinical-values-block-2__eyebrow"><?php echo esc_html($eyebrow); ?></p>
+				<?php endif; ?>
+
+				<?php if (!empty($title)) : ?>
+					<<?php echo esc_attr($title_tag); ?> class="clinical-values-block-2__title<?php echo $is_cbct_block ? ' clinical-values-block-2__title--cbct' : ''; ?>"><?php echo esc_html($title); ?></<?php echo esc_attr($title_tag); ?>>
+				<?php endif; ?>
+			</div>
+		<?php endif; ?>
+
+		<div class="clinical-values-block-2__layout<?php echo $has_multiple_stats ? ' clinical-values-block-2__layout--multi-stat' : ''; ?>">
+			<div class="clinical-values-block-2__left">
+				<?php if (!empty($product_badge['text'])) : ?>
+					<div
+						class="clinical-values-block-2__badge"
+						style="background-color: <?php echo esc_attr($product_badge['bg_color']); ?>; color: <?php echo esc_attr($product_badge['text_color']); ?>;"
+					>
+						<?php echo esc_html($product_badge['text']); ?>
+					</div>
+				<?php endif; ?>
+
+				<?php if (!empty($tags)) : ?>
+					<div class="clinical-values-block-2__tags">
+						<?php foreach ($tags as $tag) : ?>
+							<div
+								class="clinical-values-block-2__tag"
+								style="background-color: <?php echo esc_attr($tag['bg_color']); ?>; color: <?php echo esc_attr($tag['text_color']); ?>;"
+							>
+								<?php echo esc_html($tag['text']); ?>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
+
+				<?php if (!empty($description_line)) : ?>
+					<p class="clinical-values-block-2__description">
+						<?php echo nl2br(esc_html($description_line)); ?>
+					</p>
+				<?php endif; ?>
+
+				<?php if (!empty($cta['text']) && !empty($cta['url'])) : ?>
+					<div class="clinical-values-block-2__cta-wrap clinical-values-block-2__cta-wrap--desktop">
+						<a
+							class="hc-btn hc-btn-primary"
+							href="<?php echo esc_url($cta['url']); ?>"
+							style="--cta-border-color: <?php echo esc_attr($cta['border_color']); ?>; --cta-bg-color: <?php echo esc_attr($cta['bg_color']); ?>; --cta-text-color: <?php echo esc_attr($cta['text_color']); ?>;"
+						>
+							<span><?php echo esc_html($cta['text']); ?></span>
+							<span class="hc-btn-arrow" aria-hidden="true">›</span>
+						</a>
+					</div>
+				<?php endif; ?>
+			</div>
+
+			<?php if ($has_mobile_meta) : ?>
+				<div class="clinical-values-block-2__mobile-meta">
+					<?php if (!empty($tags)) : ?>
+						<div class="clinical-values-block-2__tags clinical-values-block-2__tags--mobile">
+							<?php foreach ($tags as $tag) : ?>
+								<div
+									class="clinical-values-block-2__tag"
+									style="background-color: <?php echo esc_attr($tag['bg_color']); ?>; color: <?php echo esc_attr($tag['text_color']); ?>;"
+								>
+									<?php echo esc_html($tag['text']); ?>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+
+					<?php if (!empty($description_line)) : ?>
+						<p class="clinical-values-block-2__description">
+							<?php echo nl2br(esc_html($description_line)); ?>
+						</p>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
+
+			<div class="clinical-values-block-2__center">
+				<?php if (!empty($images_items)) : ?>
+					<div class="clinical-values-block-2__images" style="--images-count: <?php echo esc_attr($images_count > 0 ? $images_count : 3); ?>;">
+						<?php foreach ($images_items as $index => $image_item) : ?>
+							<?php
+							$is_last = ($index === array_key_last($images_items));
+							$caption_class = 'clinical-values-block-2__caption';
+
+							if ($is_last) {
+								$caption_class .= ' clinical-values-block-2__caption--accent';
+							}
+							?>
+							<figure class="clinical-values-block-2__image-card">
+								<?php if (!empty($image_item['image'])) : ?>
+									<div class="clinical-values-block-2__image-wrap">
+										<?php echo $render_image($image_item['image'], 'clinical-values-block-2__image'); ?>
+									</div>
+								<?php endif; ?>
+
+								<?php if (!empty($image_item['caption'])) : ?>
+									<figcaption
+										class="<?php echo esc_attr($caption_class); ?>"
+										style="<?php echo $is_last ? '--accent-color: ' . esc_attr($product_badge['text_color']) . ';' : ''; ?>"
+									>
+										<?php echo wp_kses_post($image_item['caption']); ?>
+									</figcaption>
+								<?php endif; ?>
+							</figure>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
+			</div>
+
+			<?php if (!empty($cta['text']) && !empty($cta['url'])) : ?>
+				<div class="clinical-values-block-2__cta-wrap clinical-values-block-2__cta-wrap--mobile">
+					<a
+						class="hc-btn hc-btn-primary"
+						href="<?php echo esc_url($cta['url']); ?>"
+						style="--cta-border-color: <?php echo esc_attr($cta['border_color']); ?>; --cta-bg-color: <?php echo esc_attr($cta['bg_color']); ?>; --cta-text-color: <?php echo esc_attr($cta['text_color']); ?>;"
+					>
+						<span><?php echo esc_html($cta['text']); ?></span>
+						<span class="hc-btn-arrow" aria-hidden="true">›</span>
+					</a>
+				</div>
+			<?php endif; ?>
+
+			<div class="clinical-values-block-2__right">
+				<?php if (!empty($stats)) : ?>
+					<div
+						class="clinical-values-block-2__stat <?php echo $show_stat_decoration ? 'clinical-values-block-2__stat-decoration' : ''; ?><?php echo $has_multiple_stats ? ' clinical-values-block-2__stat--multi' : ''; ?>"
+						style="--stat-accent: <?php echo esc_attr($stat['border_color']); ?>;"
+					>
+						<?php if ($has_multiple_stats) : ?>
+							<div class="clinical-values-block-2__stat-group">
+								<?php foreach ($stats as $index => $stat_item) : ?>
+									<div class="clinical-values-block-2__stat-item<?php echo ($index === 0) ? ' clinical-values-block-2__stat-item--offset-first' : ''; ?><?php echo ($index === 1) ? ' clinical-values-block-2__stat-item--offset-right' : ''; ?>">
+										<?php if (!empty($stat_item['value'])) : ?>
+											<div
+												class="clinical-values-block-2__stat-value"
+												<?php if ($enable_stat_animation) : ?>
+													data-stat-target="<?php echo esc_attr($stat_item['value']); ?>"
+													data-stat-start="<?php echo esc_attr(strpos((string) $stat_item['value'], '%') !== false ? '30' : '0'); ?>"
+													data-stat-duration="3200"
+												<?php endif; ?>
+											>
+												<?php echo esc_html($stat_item['value']); ?>
+											</div>
+										<?php endif; ?>
+
+										<?php if (!empty($stat_item['label'])) : ?>
+											<div class="clinical-values-block-2__stat-label"><?php echo nl2br(esc_html($stat_item['label'])); ?></div>
+										<?php endif; ?>
+									</div>
+
+									<?php if ($index === 0 && count($stats) === 2) : ?>
+										<div class="clinical-values-block-2__stat-separator">&amp;</div>
+									<?php endif; ?>
+								<?php endforeach; ?>
+							</div>
+						<?php else : ?>
+							<?php if (!empty($stat['value'])) : ?>
+								<div
+									class="clinical-values-block-2__stat-value"
+									<?php if ($enable_stat_animation) : ?>
+										data-stat-target="<?php echo esc_attr($stat['value']); ?>"
+										data-stat-start="<?php echo esc_attr(strpos((string) $stat['value'], '%') !== false ? '30' : '0'); ?>"
+										data-stat-duration="3200"
+									<?php endif; ?>
+								>
+									<?php echo esc_html($stat['value']); ?>
+								</div>
+							<?php endif; ?>
+
+							<?php if (!empty($stat['label'])) : ?>
+								<div class="clinical-values-block-2__stat-label"><?php echo nl2br(esc_html($stat['label'])); ?></div>
+							<?php endif; ?>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+
+    <?php if ($show_hawkai_note) : ?>
+	    <p class="clinical-values-block-2__bottom-note">*SNR = Signal to Noise Ratio</p>
+    <?php endif; ?>
+</section>
+
+<script>
+(function () {
+	if (window.__clinicalValuesBlock2StatInit) {
+		return;
+	}
+	window.__clinicalValuesBlock2StatInit = true;
+
+	function initClinicalValuesBlock2StatAnimation() {
+		var statValues = document.querySelectorAll('.clinical-values-block-2 .clinical-values-block-2__stat-value[data-stat-target]');
+		if (!statValues.length) return;
+
+		function animateClinicalStatValue(element) {
+			var targetText = element.getAttribute('data-stat-target') || element.textContent.trim();
+			var duration = parseInt(element.getAttribute('data-stat-duration'), 10) || 1800;
+			var explicitStart = parseFloat(element.getAttribute('data-stat-start'));
+			var match = targetText.match(/^\s*([^0-9+\-]*)([+\-]?\d+(?:[.,]\d+)?)(.*)\s*$/);
+
+			if (!match) return;
+
+			var prefix = match[1] || '';
+			var numericText = match[2] || '';
+			var suffix = match[3] || '';
+			var decimals = (numericText.split(/[.,]/)[1] || '').length;
+			var targetValue = parseFloat(numericText.replace(',', '.'));
+
+			if (isNaN(targetValue)) return;
+
+			var startValue = !isNaN(explicitStart) ? explicitStart : 0;
+			if (targetValue < startValue) {
+				startValue = 0;
+			}
+
+			if (element._clinicalStatFrame) {
+				cancelAnimationFrame(element._clinicalStatFrame);
+			}
+
+			var startTime = null;
+
+			function formatValue(value) {
+				var formattedNumber = decimals > 0 ? value.toFixed(decimals) : String(Math.round(value));
+				return prefix + formattedNumber + suffix;
+			}
+
+			function step(timestamp) {
+				if (!startTime) startTime = timestamp;
+
+				var progress = Math.min((timestamp - startTime) / duration, 1);
+				var easedProgress = 1 - Math.pow(1 - progress, 3);
+				var currentValue = startValue + (targetValue - startValue) * easedProgress;
+
+				element.textContent = formatValue(currentValue);
+
+				if (progress < 1) {
+					element._clinicalStatFrame = requestAnimationFrame(step);
+				} else {
+					element.textContent = prefix + (decimals > 0 ? targetValue.toFixed(decimals) : String(Math.round(targetValue))) + suffix;
+					element._clinicalStatFrame = null;
+				}
+			}
+
+			element.textContent = formatValue(startValue);
+			element._clinicalStatFrame = requestAnimationFrame(step);
+		}
+
+		if ('IntersectionObserver' in window) {
+			var observer = new IntersectionObserver(function (entries) {
+				entries.forEach(function (entry) {
+					var element = entry.target;
+
+					if (entry.isIntersecting && entry.intersectionRatio >= 0.45) {
+						if (!element._clinicalStatVisible) {
+							element._clinicalStatVisible = true;
+							animateClinicalStatValue(element);
+						}
+					} else {
+						element._clinicalStatVisible = false;
+					}
+				});
+			}, {
+				threshold: [0, 0.45, 0.7]
+			});
+
+			statValues.forEach(function (element) {
+				observer.observe(element);
+			});
+		} else {
+			statValues.forEach(function (element) {
+				animateClinicalStatValue(element);
+			});
+		}
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initClinicalValuesBlock2StatAnimation);
+	} else {
+		initClinicalValuesBlock2StatAnimation();
+	}
+})();
+</script>
