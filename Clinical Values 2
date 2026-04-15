@@ -265,11 +265,22 @@ if (!$has_content) {
 			#clinical-values-block-2-5 {
 				padding-top: 0px;
 				padding-bottom: 0px;
+				--hawkct-stat-x: 40px;
+		        --hawkct-stat-y: 0px;
 			}
 		   
 		    #clinical-values-block-2-6 {
 				padding-top: 70px;
-			} 	
+			} 
+			
+			#clinical-values-block-2-5 .clinical-values-block-2__stat-decoration::before {
+	            top: 0px;
+	            left: 10px;
+            }
+			
+			#clinical-values-block-2-5 .clinical-values-block-2__stat {
+		        transform: translate(var(--hawkct-stat-x), var(--hawkct-stat-y));
+	        }
 		}
 
 		.clinical-values-block-2__inner {
@@ -300,10 +311,10 @@ if (!$has_content) {
 		.clinical-values-block-2__title {
 			margin: 0 !important;
 			color: #ffffff;
-			font-size: 52px !important;
-			font-weight: 700;
+			font-size: 50px !important;
+			font-weight: 300;
 			line-height: 1.25;
-			letter-spacing: -0.055em !important;
+			letter-spacing: -0.02em !important;
 		}
 
 		.clinical-values-block-2__title--cbct {
@@ -532,11 +543,27 @@ if (!$has_content) {
 			font-weight: 400 !important;
 			font-family: inherit;
 		}
-
+  
+		.clinical-values-block-2__caption strong,
+        .clinical-values-block-2__caption strong *,
+        .clinical-values-block-2__caption b,
+        .clinical-values-block-2__caption b * {
+	        font-weight: 700 !important;
+        }
+		
 		.clinical-values-block-2__caption strong,
 		.clinical-values-block-2__caption b {
 			font-weight: 700 !important;
 		}
+		
+		.clinical-values-block-2--cbct .clinical-values-block-2__image-card:last-child .clinical-values-block-2__caption strong,
+        .clinical-values-block-2--cbct .clinical-values-block-2__image-card:last-child .clinical-values-block-2__caption b,
+        .clinical-values-block-2--hawkct .clinical-values-block-2__image-card:last-child .clinical-values-block-2__caption strong,
+        .clinical-values-block-2--hawkct .clinical-values-block-2__image-card:last-child .clinical-values-block-2__caption b,
+        .clinical-values-block-2--hawkai .clinical-values-block-2__image-card:last-child .clinical-values-block-2__caption strong,
+        .clinical-values-block-2--hawkai .clinical-values-block-2__image-card:last-child .clinical-values-block-2__caption b {
+	        font-weight: 700 !important;
+        }
 
 		.clinical-values-block-2__caption em,
 		.clinical-values-block-2__caption i {
@@ -709,21 +736,19 @@ if (!$has_content) {
 				justify-content: center;
 			}
 
-		@media (min-width: 768px) {
-	        #clinical-values-block-2-5 .clinical-values-block-2__right {
-		        justify-content: flex-end;
-	        }
+			.clinical-values-block-2--hawkct .clinical-values-block-2__stat {
+				text-align: center;
+				transform: translateX(0px);
+			}
 
-			#clinical-values-block-2-5 .clinical-values-block-2__stat-value,
-            #clinical-values-block-2-5 .clinical-values-block-2__stat-label {
-	            transform: translateX(-10px);
-            }
+			.clinical-values-block-2--hawkct .clinical-values-block-2__stat-value {
+				transform: translateX(0px);
+			}
 
-	        #clinical-values-block-2-5 .clinical-values-block-2__stat {
-		        text-align: center;
-		        transform: translateX(14px);
-	        }
-        }
+			.clinical-values-block-2--hawkct .clinical-values-block-2__stat-label {
+				transform: translateX(0px);
+			}
+		}
 
 		@media (max-width: 1399px) {
 			.clinical-values-block-2__layout {
@@ -823,15 +848,20 @@ if (!$has_content) {
 			}
 
 			.clinical-values-block-2__eyebrow {
-				font-size: 14px;
+				font-size: 12px;
 			}
 
 			.clinical-values-block-2__title {
-				font-size: 35px;
+				font-size: 30px !important;
 				white-space: normal;
 				overflow-wrap: anywhere;
 				word-break: normal;
 			}
+			
+			.clinical-values-block-2--cbct .clinical-values-block-2__title {
+	            font-size: 30px !important;
+                letter-spacing: -0.022em !important;
+            }
 
 			.clinical-values-block-2__badge {
 				padding: 8px 16px;
@@ -1049,6 +1079,24 @@ if (!$has_content) {
 				margin: 0;
 				padding-top: 0;
 			}
+			
+			#clinical-values-block-2-4 {
+		        padding-bottom: 24px !important;
+	        }
+
+	        #clinical-values-block-2-5 {
+		        padding-top: 24px !important;
+		        padding-bottom: 24px !important;
+	        }
+
+	        #clinical-values-block-2-6 {
+		        padding-top: 24px !important;
+	        }
+			
+			#clinical-values-block-2-6 .clinical-values-block-2__stat-decoration::before {
+	            top: -8px;   /* move up/down */
+	            left: 8px !important;   /* move left/right */
+            }
         }
 	</style>
 
