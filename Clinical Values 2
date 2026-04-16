@@ -265,7 +265,7 @@ if (!$has_content) {
 			#clinical-values-block-2-5 {
 				padding-top: 0px;
 				padding-bottom: 0px;
-				--hawkct-stat-x: 40px;
+				--hawkct-stat-x: 65px;
 		        --hawkct-stat-y: 0px;
 			}
 		   
@@ -679,6 +679,50 @@ if (!$has_content) {
 	        font-weight: 400;
 	        z-index: 3;
 	        pointer-events: none;
+        }
+		
+	
+        @media (min-width: 768px) {
+	       .clinical-values-block-2--hawkai {
+		       --hawkai-stat-width: 190px;
+	       }
+
+	       .clinical-values-block-2--hawkai .clinical-values-block-2__right {
+		       justify-content: flex-end;
+	       }
+
+	       .clinical-values-block-2--hawkai .clinical-values-block-2__stat--multi {
+		       width: 190px;
+		       max-width: 190px;
+		       flex: 0 0 190px;
+		       padding: 16px 12px 12px;
+			   margin-left: auto;
+	       }
+
+	       .clinical-values-block-2--hawkai .clinical-values-block-2__stat-group {
+		       width: 100%;
+		       display: flex;
+		       flex-direction: column;
+		       align-items: flex-start;
+		       gap: 18px;
+	       }
+
+	       .clinical-values-block-2--hawkai .clinical-values-block-2__stat-item,
+	       .clinical-values-block-2--hawkai .clinical-values-block-2__stat-item--offset-first,
+	       .clinical-values-block-2--hawkai .clinical-values-block-2__stat-item--offset-right {
+		       width: 100%;
+		       min-width: 0;
+		       margin-left: 0;
+		       align-self: flex-start;
+	       }
+
+	       .clinical-values-block-2--hawkai .clinical-values-block-2__stat--multi.clinical-values-block-2__stat-decoration::before {
+		       left: 0;
+	       }
+
+	       .clinical-values-block-2--hawkai .clinical-values-block-2__stat-label {
+		       white-space: nowrap;
+	       }
         }
 
         @media (max-width: 1199px) {
