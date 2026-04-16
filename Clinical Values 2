@@ -1284,7 +1284,7 @@ if (!$has_content) {
 	</div>
 
     <?php if ($show_hawkai_note) : ?>
-	    <p class="clinical-values-block-2__bottom-note">*SNR = Signal to Noise Ratio</p>
+	    <p class="clinical-values-block-2__bottom-note">*SNR= Signal-to-Noise Ratio</p>
     <?php endif; ?>
 </section>
 
