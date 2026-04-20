@@ -265,13 +265,20 @@ if (!$has_content) {
 			#clinical-values-block-2-5 {
 				padding-top: 0px;
 				padding-bottom: 0px;
-				--hawkct-stat-x: 65px;
-		        --hawkct-stat-y: 0px;
 			}
 		   
 		    #clinical-values-block-2-6 {
 				padding-top: 70px;
 			} 
+			
+			#clinical-values-block-2-5 .clinical-values-block-2__right {
+		        justify-content: flex-end;
+	        }
+
+	        #clinical-values-block-2-5 .clinical-values-block-2__stat {
+		        transform: none !important;
+		        margin-left: auto;
+	        }
 			
 			#clinical-values-block-2-5 .clinical-values-block-2__stat-decoration::before {
 	            top: 0px;
@@ -280,6 +287,11 @@ if (!$has_content) {
 			
 			#clinical-values-block-2-5 .clinical-values-block-2__stat {
 		        transform: translate(var(--hawkct-stat-x), var(--hawkct-stat-y));
+	        }
+			
+			.clinical-values-block-2--hawkai .clinical-values-block-2__images {
+		        grid-template-columns: repeat(2, minmax(0, 500px));
+		        justify-content: center;
 	        }
 		}
 
