@@ -289,10 +289,28 @@ if (!$has_content) {
 		        transform: translate(var(--hawkct-stat-x), var(--hawkct-stat-y));
 	        }
 			
-			.clinical-values-block-2--hawkai .clinical-values-block-2__images {
-		        grid-template-columns: repeat(2, minmax(0, 500px));
-		        justify-content: center;
+			.clinical-values-block-2--hawkai .clinical-values-block-2__layout,
+	        .clinical-values-block-2--hawkai .clinical-values-block-2__layout--multi-stat {
+		        grid-template-columns: minmax(160px, 0.7fr) minmax(0, 2.2fr) minmax(160px, 0.4fr);
 	        }
+
+	        .clinical-values-block-2--hawkai .clinical-values-block-2__images {
+		        grid-template-columns: repeat(2, minmax(0, 380px));
+		        justify-content: center;
+		        gap: 18px;
+         	}
+
+	        .clinical-values-block-2--hawkai .clinical-values-block-2__image-card {
+		        max-width: 380px;
+	        }
+			
+			.clinical-values-block-2--hawkai {
+	            --hawkai-images-shift-x: -35px; /* negative = left, positive = right */
+            }
+
+            .clinical-values-block-2--hawkai .clinical-values-block-2__layout--multi-stat .clinical-values-block-2__center {
+	            transform: translateX(var(--hawkai-images-shift-x));
+            }
 		}
 
 		.clinical-values-block-2__inner {
@@ -679,7 +697,11 @@ if (!$has_content) {
 			border-right: 2px solid var(--stat-accent, #ef4b73);
 			border-bottom: 2px solid var(--stat-accent, #ef4b73);
 		}
-
+		
+		#clinical-values-block-2-6 .clinical-values-block-2__stat-decoration::after {
+	        right: -8px;
+        }
+ 
         .clinical-values-block-2__bottom-note {
 	        position: absolute;
 	        right: 80px;
